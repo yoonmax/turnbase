@@ -20,7 +20,7 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Trainer.** Recognition, recall, execution on the virtual cube, flashcards and SM-2 spaced review, with progress by set.
 
-**Themes.** Six palettes in light and dark, or your own background, accent and glow colours. Glass strength and background glow are adjustable, and text contrast is calculated so any combination stays readable.
+**Themes.** Light by default, on one plain background colour. Six palettes in light and dark, or your own background and accent colours, with optional background glow and adjustable glass. Text contrast is calculated so any combination stays readable.
 
 **Virtual solving.** A timed solve on the 3D cube, recorded move by move with timestamps and replayable at original speed. These go to a separate session, because they are not comparable with physical times.
 
@@ -137,11 +137,11 @@ While a solve runs, the page drops everything else. The navigation and panels ar
 
 ### The look, and frame rate
 
-Panels are translucent, with backdrop blur, raised saturation and a lit top edge, over a static colour field. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favour of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
+Big numbers and page titles are set in Montserrat Black, with fixed-width digits so a running time never jitters. Panels are translucent, with backdrop blur, raised saturation and a lit top edge. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favour of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
 
 Selection thumbs, switches and panels move on a spring, using compositor-only properties where possible. Off-screen library sections skip rendering, and each page's code starts loading when the pointer heads for its link.
 
-Measured in the browser tests, in Chromium on Apple silicon at a 60 Hz limit: the running timer held 60 fps with a worst frame of 16.8 ms, and the cube rendered about 59 fps during algorithm playback. Nothing in the code caps the rate, so faster displays should run faster, but that has not been measured.
+Measured in the browser tests, in Chromium on Apple silicon at a 60 Hz limit: the running timer held 60 fps with a worst frame of 16.8 ms, and the cube rendered 58 to 59 fps during algorithm playback. Nothing in the code caps the rate, so faster displays should run faster, but that has not been measured.
 
 ### The cube
 
@@ -217,7 +217,7 @@ turnbase is released under the [MIT License](LICENSE). That covers this reposito
 - [cubing.js](https://github.com/cubing/cubing.js), MPL-2.0 or GPL-3.0-or-later. It is bundled, unmodified, into `public/vendor/cubing` by `scripts/vendor-cubing.mjs`. Its source is at that link.
 - [Three.js](https://github.com/mrdoob/three.js), React Three Fiber, Drei, React, Zustand and Tailwind CSS, MIT.
 - [GSAP](https://gsap.com/), under its standard no-charge licence.
-- Geist and Geist Mono, SIL Open Font License.
+- Montserrat and Geist Mono, SIL Open Font License.
 - WCA rules are summarised from the [WCA Regulations](https://www.worldcubeassociation.org/regulations/). SM-2 is by Piotr Woźniak.
 
 turnbase is an independent project, not affiliated with the World Cube Association. Rubik's Cube is a trademark of its owner.

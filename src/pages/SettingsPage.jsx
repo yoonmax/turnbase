@@ -140,7 +140,7 @@ export default function SettingsPage() {
             <Toggle id="hideRunningTime" label="Hide the time while solving" value={settings.hideRunningTime} onChange={set('hideRunningTime')} />
             <Choice id="decimals" label="Decimal places" hint="Recorded results and averages are always hundredths. This changes how a finished solve is displayed, and running time shows at most two places." value={settings.decimals} options={[[1, '1'], [2, '2'], [3, '3']]} onChange={set('decimals')} />
             <Slider id="timerFontScale" label="Timer size" value={settings.timerFontScale} min={0.6} max={1.2} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={set('timerFontScale')} />
-            <Toggle id="timerColors" label="Colour the digits while holding" hint="Amber while holding, green when ready." value={settings.timerColors} onChange={set('timerColors')} />
+            <Toggle id="timerColors" label="Colour the digits while holding" hint="Red while holding, green when ready." value={settings.timerColors} onChange={set('timerColors')} />
             <Toggle id="focusMode" label="Focus mode" hint="Hide everything except the digits while a solve is underway." value={settings.focusMode} onChange={set('focusMode')} />
             <div className="py-2.5 border-t border-rule" data-testid="timer-shortcuts">
               <p className="m-0">Keyboard shortcuts on the timer</p>

@@ -28,7 +28,7 @@ function useMediaQuery(query) {
 function Stat({ label, value, testId }) {
   return (
     <div className="flex flex-col items-center min-w-[3rem] sm:min-w-[3.5rem]">
-      <span className="text-[0.9375rem] font-semibold tabular" style={{ letterSpacing: '-0.02em' }} data-testid={testId}>
+      <span className="text-[0.875rem] sm:text-[0.9375rem] font-extrabold tabular" style={{ letterSpacing: '-0.03em' }} data-testid={testId}>
         {value}
       </span>
       <span className="text-[0.6875rem] text-graphite">{label}</span>

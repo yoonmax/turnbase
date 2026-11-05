@@ -10,27 +10,27 @@ export const PALETTES = {
   },
   paper: {
     name: 'Paper',
-    light: { paper: '#f7f6f2', ink: '#1c1d1f', accent: '#1c1d1f', blooms: ['#ecdcc4', '#e6e0d2', '#d9e2d4'] },
+    light: { paper: '#f6f3ec', ink: '#1c1d1f', accent: '#1c1d1f', blooms: ['#ecdcc4', '#e6e0d2', '#d9e2d4'] },
     dark: { paper: '#141412', ink: '#efece6', accent: '#efece6', blooms: ['#4f3f27', '#3a3a2e', '#2c3d31'] },
   },
   graphite: {
     name: 'Graphite',
-    light: { paper: '#f2f2f3', ink: '#17171a', accent: '#17171a', blooms: ['#d9d9de', '#e4e4e8', '#cfd0d6'] },
+    light: { paper: '#eeeef0', ink: '#17171a', accent: '#17171a', blooms: ['#d9d9de', '#e4e4e8', '#cfd0d6'] },
     dark: { paper: '#0f0f11', ink: '#ededf0', accent: '#ededf0', blooms: ['#2c2c33', '#232329', '#34343c'] },
   },
   aurora: {
     name: 'Aurora',
-    light: { paper: '#f2f7f6', ink: '#10201e', accent: '#0d7f73', blooms: ['#9be8d3', '#b9c8fb', '#d6f2a8'] },
+    light: { paper: '#e8f4f0', ink: '#10201e', accent: '#0d7f73', blooms: ['#9be8d3', '#b9c8fb', '#d6f2a8'] },
     dark: { paper: '#091212', ink: '#e8f5f2', accent: '#46d6bd', blooms: ['#0d6a5f', '#343f9e', '#3d6b18'] },
   },
   ember: {
     name: 'Ember',
-    light: { paper: '#faf5f1', ink: '#231712', accent: '#c2410c', blooms: ['#fdc9a0', '#f9b7c0', '#fde3a7'] },
+    light: { paper: '#fbefe6', ink: '#231712', accent: '#c2410c', blooms: ['#fdc9a0', '#f9b7c0', '#fde3a7'] },
     dark: { paper: '#140e0b', ink: '#f6ece6', accent: '#fb8b4f', blooms: ['#8a3a12', '#7d1f47', '#7a5a10'] },
   },
   orchid: {
     name: 'Orchid',
-    light: { paper: '#f8f4fa', ink: '#1f1524', accent: '#8b2fc9', blooms: ['#e3bcf9', '#f9bfd9', '#c1c8fb'] },
+    light: { paper: '#f4ebf8', ink: '#1f1524', accent: '#8b2fc9', blooms: ['#e3bcf9', '#f9bfd9', '#c1c8fb'] },
     dark: { paper: '#110c15', ink: '#f3ecf7', accent: '#cf8bfa', blooms: ['#5f2591', '#8a1f5e', '#2e3a9b'] },
   },
 };
@@ -78,8 +78,8 @@ export function ensureContrast(color, background, ratio, toward) {
 }
 
 const STATUS = {
-  light: { hold: '#a86a06', ready: '#0f7a48', danger: '#b5301c' },
-  dark: { hold: '#e8ad45', ready: '#43cf8a', danger: '#f0806a' },
+  light: { hold: '#d0261c', ready: '#0a8a4f', warn: '#a86a06', danger: '#b5301c' },
+  dark: { hold: '#ff5a4f', ready: '#43cf8a', warn: '#e8ad45', danger: '#f0806a' },
 };
 
 const SERIES = {
@@ -115,7 +115,7 @@ export function buildTheme(settings, mode = 'light') {
   const { paper, ink, dark } = base;
   const high = Boolean(settings.highContrast);
   const glass = Math.max(0, Math.min(1, settings.glass ?? 0.7));
-  const bloom = Math.max(0, Math.min(1, settings.bloom ?? 0.7));
+  const bloom = Math.max(0, Math.min(1, settings.bloom ?? 0));
   const status = STATUS[dark ? 'dark' : 'light'];
   const series = SERIES[dark ? 'dark' : 'light'];
 
@@ -146,6 +146,7 @@ export function buildTheme(settings, mode = 'light') {
       '--accent-ink': accentInk,
       '--hold': ensureContrast(status.hold, paper, 4.5, ink),
       '--ready': ensureContrast(status.ready, paper, 4.5, ink),
+      '--warn': ensureContrast(status.warn, paper, 4.5, ink),
       '--danger': ensureContrast(status.danger, paper, 4.5, ink),
       '--bloom-a': base.blooms[0],
       '--bloom-b': base.blooms[1],

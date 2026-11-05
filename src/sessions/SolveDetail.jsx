@@ -54,7 +54,7 @@ export function SolveDetail({ solve, number, onClose }) {
   return (
     <Modal open={Boolean(solve)} onClose={onClose} title={`Solve ${number}`} width="36rem" testId="solve-detail">
       <div className="flex items-baseline gap-3">
-        <div className="notation text-4xl tabular" data-testid="detail-result" style={{ letterSpacing: '-0.05em', fontWeight: 300 }}>
+        <div className="display-num text-4xl" data-testid="detail-result">
           {resultLabel(solve)}
         </div>
         <div className="text-[0.8125rem] text-graphite">{formatDate(solve.createdAt)}</div>

@@ -96,7 +96,7 @@ export function VirtualSolvePanel({ controller, onSessionActive }) {
       </p>
 
       <div className="flex items-baseline gap-5">
-        <div ref={clock} className="notation text-4xl tabular" data-testid="virtual-clock" style={{ letterSpacing: '-0.05em', fontWeight: 300 }}>
+        <div ref={clock} className="display-num text-4xl" data-testid="virtual-clock">
           {phase === PHASE.DONE ? formatMs(session.elapsedMs, 2) : '0.00'}
         </div>
         <div className="text-[0.8125rem] text-graphite" data-testid="virtual-count">

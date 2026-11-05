@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react';
 import { useApp } from '../app/store.js';
-import { DEFAULT_CUSTOM_THEME, PALETTES, isHex } from '../app/themes.js';
+import { DEFAULT_CUSTOM_THEME, PALETTES, contrast, isHex } from '../app/themes.js';
 
-function Swatch({ name, paper, ink, blooms, accent, selected, onClick, testId }) {
+function Swatch({ name, paper, ink, blooms, accent, selected, onClick, testId, glow }) {
   return (
     <button
       type="button"
@@ -15,14 +15,22 @@ function Swatch({ name, paper, ink, blooms, accent, selected, onClick, testId })
       <span
         className="relative block w-full h-16 rounded-2xl overflow-hidden"
         style={{
-          background: `radial-gradient(70% 90% at 15% 10%, ${blooms[0]}, transparent 70%), radial-gradient(70% 90% at 90% 20%, ${blooms[1]}, transparent 70%), ${paper}`,
+          background: paper,
           boxShadow: selected ? `0 0 0 2px var(--accent)` : '0 0 0 1px var(--rule)',
         }}
       >
+        <span
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            opacity: glow,
+            background: `radial-gradient(70% 90% at 15% 10%, ${blooms[0]}, transparent 70%), radial-gradient(70% 90% at 90% 20%, ${blooms[1]}, transparent 70%)`,
+          }}
+        />
         <span className="absolute left-2.5 bottom-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: accent, color: paper }}>
           {selected ? <Check size={12} strokeWidth={3} /> : null}
         </span>
-        <span className="absolute right-2.5 top-2 text-[0.9375rem] font-semibold tabular" style={{ color: ink }}>
+        <span className="absolute right-2.5 top-2 text-[0.9375rem] font-black tabular" style={{ color: ink }}>
           9.41
         </span>
       </span>
@@ -65,6 +73,7 @@ export function ThemeEditor({ Choice, Slider, Setting }) {
               accent={look.accent}
               selected={settings.palette === id}
               testId={`palette-${id}`}
+              glow={settings.bloom}
               onClick={() => update({ palette: id })}
             />
           );
@@ -72,11 +81,12 @@ export function ThemeEditor({ Choice, Slider, Setting }) {
         <Swatch
           name="Custom"
           paper={custom.paper}
-          ink={isDark ? '#f3f4f6' : '#14161a'}
+          ink={contrast('#ffffff', custom.paper) >= contrast('#000000', custom.paper) ? '#f3f4f6' : '#14161a'}
           blooms={[custom.bloomA, custom.bloomB]}
           accent={custom.accent}
           selected={settings.palette === 'custom'}
           testId="palette-custom"
+          glow={settings.bloom}
           onClick={() => update({ palette: 'custom', customTheme: custom })}
         />
       </div>

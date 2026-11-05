@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CUSTOM_THEME, PALETTES, buildTheme, contrast, ensureContrast, isHex, luminance, mix } from '../../src/app/themes.js';
 
-const text = (t) => ['--ink', '--graphite', '--faint', '--hold', '--ready', '--danger'].map((name) => [name, t.vars[name]]);
+const text = (t) => ['--ink', '--graphite', '--faint', '--hold', '--ready', '--warn', '--danger'].map((name) => [name, t.vars[name]]);
 
 describe('colour maths', () => {
   it('computes WCAG contrast', () => {

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { cubeReady, expectPictureMatchesLogic, openTimer, runSolve } from './helpers.js';
+import { cubeReady, expectPictureMatchesLogic, openTimer, runSolve, timerState } from './helpers.js';
 
 const rootVar = (page, name) => page.evaluate((n) => document.documentElement.style.getPropertyValue(n), name);
 
@@ -84,6 +84,129 @@ test('during a solve the page is only digits, and no glass is being composited',
   await page.keyboard.press('Space');
   await page.waitForTimeout(300);
   expect(await page.getByTestId('main-nav').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
+});
+
+test('a first-time visitor gets light with one plain background colour, whatever the system prefers', async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: 'dark', baseURL: 'http://localhost:5211', viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.waitForSelector('[data-testid=timer-digits]');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  const opacity = Number(await page.locator('.backdrop-blooms').evaluate((el) => getComputedStyle(el).opacity));
+  expect(opacity).toBe(0);
+  await context.close();
+});
+
+test('someone with old saved settings moves to the new look, but a chosen dark theme stays', async ({ page }) => {
+  await page.goto('/settings');
+  const seed = (settings) =>
+    page.evaluate(
+      (value) =>
+        new Promise((resolve, reject) => {
+          const open = indexedDB.open('turnbase');
+          open.onsuccess = () => {
+            const tx = open.result.transaction('kv', 'readwrite');
+            tx.objectStore('kv').put({ key: 'settings', value });
+            tx.oncomplete = () => {
+              open.result.close();
+              resolve();
+            };
+            tx.onerror = () => reject(tx.error);
+          };
+        }),
+      settings,
+    );
+  await seed({ theme: 'system', bloom: 0.7, holdMs: 450 });
+  await page.reload();
+  await page.waitForSelector('[data-testid=settings-page]');
+  await expect(page.getByTestId('setting-theme-light')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('setting-holdMs-value')).toHaveText('450 ms');
+  await seed({ theme: 'dark', bloom: 0.5 });
+  await page.reload();
+  await page.waitForSelector('[data-testid=settings-page]');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.getByTestId('setting-bloom-value')).toHaveText('50%');
+});
+
+test('holding turns the digits red, ready turns them green, with no glow behind', async ({ page }) => {
+  await openTimer(page);
+  const rgb = () => page.getByTestId('timer-digits').evaluate((el) => getComputedStyle(el).color.match(/[\d.]+/g).slice(0, 3).map(Number));
+  await page.keyboard.down('Space');
+  await page.waitForTimeout(150);
+  const [r1, g1, b1] = await rgb();
+  expect(await timerState(page)).toBe('holding');
+  expect(r1).toBeGreaterThan(g1 * 2);
+  expect(r1).toBeGreaterThan(b1 * 2);
+  await page.waitForTimeout(350);
+  const [r2, g2, b2] = await rgb();
+  expect(await timerState(page)).toBe('ready');
+  expect(g2).toBeGreaterThan(r2 * 2);
+  expect(g2).toBeGreaterThan(b2);
+  await expect(page.locator('.timer-glow')).toHaveCount(0);
+  await page.keyboard.up('Space');
+  await page.keyboard.press('Escape');
+});
+
+test('the timer is Montserrat Black, and its digits do not change width', async ({ page }) => {
+  await openTimer(page);
+  await page.evaluate(() => document.fonts.ready);
+  const digits = page.getByTestId('timer-digits');
+  const style = await digits.evaluate((el) => ({ family: getComputedStyle(el).fontFamily, weight: getComputedStyle(el).fontWeight }));
+  expect(style.family).toContain('Montserrat');
+  expect(style.weight).toBe('900');
+  expect(await page.evaluate(() => document.fonts.check('900 40px "Montserrat Variable"', '0123456789'))).toBe(true);
+  const widths = await digits.evaluate((el) =>
+    '0123456789'.split('').map((d) => {
+      const probe = el.cloneNode();
+      probe.removeAttribute('data-testid');
+      probe.style.display = 'inline-block';
+      probe.textContent = d.repeat(4);
+      el.parentElement.appendChild(probe);
+      const w = probe.getBoundingClientRect().width;
+      probe.remove();
+      return w;
+    }),
+  );
+  expect(new Set(widths.map((w) => w.toFixed(1))).size).toBe(1);
+});
+
+for (const width of [640, 768, 1024]) {
+  test(`the navigation fits without overlaps at ${width}px`, async ({ browser }) => {
+    const context = await browser.newContext({ baseURL: 'http://localhost:5211', viewport: { width, height: 800 } });
+    const page = await context.newPage();
+    await page.goto('/settings');
+    await page.waitForSelector('[data-testid=settings-page]');
+    await page.evaluate(() => document.fonts.ready);
+    const pill = await page.locator('.nav-links').boundingBox();
+    expect(pill.x).toBeGreaterThanOrEqual(0);
+    expect(pill.x + pill.width).toBeLessThanOrEqual(width);
+    const word = page.locator('.nav > a');
+    if (await word.isVisible()) {
+      const box = await word.boundingBox();
+      expect(box.x + box.width).toBeLessThan(pill.x);
+    }
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+    await context.close();
+  });
+}
+
+test('long times still fit on a phone', async ({ browser }) => {
+  const context = await browser.newContext({ baseURL: 'http://localhost:5211', viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.waitForSelector('[data-testid=session-select], [data-testid=mobile-history]');
+  await page.getByTestId('timer-digits').evaluate((el) => {
+    el.textContent = '1:23.45';
+    el.dataset.long = 'true';
+  });
+  const box = await page.getByTestId('timer-digits').boundingBox();
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(390);
+  const stats = await page.getByTestId('session-stats').boundingBox();
+  expect(stats.x).toBeGreaterThanOrEqual(0);
+  expect(stats.x + stats.width).toBeLessThanOrEqual(390);
+  await context.close();
 });
 
 test('penalty controls appear only for the solve just finished', async ({ page }) => {

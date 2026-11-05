@@ -12,7 +12,7 @@
     <script>
       // Applied before first paint so a saved dark theme never flashes light.
       try {
-        var t = localStorage.getItem('turnbase-theme') || 'system';
+        var t = localStorage.getItem('turnbase-theme') || 'light';
         var dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         var saved = JSON.parse(localStorage.getItem('turnbase-vars') || 'null');

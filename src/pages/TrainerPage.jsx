@@ -179,7 +179,7 @@ function ExecutionRound({ entry, auf, onDone }) {
       <div className="grid sm:grid-cols-[auto_1fr] gap-4 items-start">
         <div className="flex flex-col gap-2 sm:w-44">
           <CaseCard entry={entry} auf={auf} size={132} />
-          <div ref={clock} className="notation text-2xl tabular" data-testid="execution-clock" style={{ letterSpacing: '-0.05em' }}>
+          <div ref={clock} className="display-num text-2xl" data-testid="execution-clock">
             {finished ? formatMs(finished.ms, 2) : '0.00'}
           </div>
           <div className="text-[0.8125rem] text-graphite" data-testid="execution-count">

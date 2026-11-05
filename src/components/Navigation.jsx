@@ -26,9 +26,9 @@ export function Mark({ size = 16 }) {
 export function Navigation() {
   return (
     <nav className="nav focus-fade" aria-label="Main" data-testid="main-nav">
-      <NavLink to="/" className="hidden sm:flex items-center gap-2 no-underline text-ink font-semibold" aria-label="turnbase, go to timer">
+      <NavLink to="/" className="hidden lg:flex items-center gap-2 no-underline text-ink font-extrabold" aria-label="turnbase, go to timer">
         <Mark />
-        <span style={{ letterSpacing: '-0.03em' }}>turnbase</span>
+        <span style={{ letterSpacing: '-0.045em' }}>turnbase</span>
       </NavLink>
       <div className="nav-links glass">
         {LINKS.map(({ to, label, Icon, end, page }) => (
@@ -47,7 +47,7 @@ export function Navigation() {
           </NavLink>
         ))}
       </div>
-      <div className="hidden sm:block">
+      <div className="hidden lg:block">
         <ThemeToggle />
       </div>
     </nav>

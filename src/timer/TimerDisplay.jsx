@@ -48,8 +48,6 @@ export function TimerDisplay({ onTimeClick }) {
 
   return (
     <div className="relative flex flex-col items-center" data-testid="timer-display">
-      <div className="timer-glow timer-glow-hold" aria-hidden="true" />
-      <div className="timer-glow timer-glow-ready" aria-hidden="true" />
       <div
         ref={digits}
         className="timer-digits tabular"

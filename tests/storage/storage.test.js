@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { clearAll, closeDb, kvGet, kvSet } from '../../src/storage/Database.js';
 import { buildSession, deleteSession, listSessions, saveSession } from '../../src/storage/SessionRepository.js';
 import { deleteSolves, listAllSolves, listSolves, saveSolve, saveSolves } from '../../src/storage/SolveRepository.js';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings } from '../../src/storage/SettingsRepository.js';
+import { DEFAULT_SETTINGS, LOOK_VERSION, loadSettings, migrateSettings, saveSettings } from '../../src/storage/SettingsRepository.js';
 import { emptyProgress, listProgress, saveProgress } from '../../src/storage/AlgorithmProgressRepository.js';
 import { exportAll, importDocument, solvesToCsv, validateBackup } from '../../src/storage/Backup.js';
 import { buildSolve } from '../../src/timer/SolveRecorder.js';
@@ -59,6 +59,19 @@ describe('settings and key-value data', () => {
     const loaded = await loadSettings();
     expect(loaded.holdMs).toBe(500);
     expect(loaded.turnMs).toBe(DEFAULT_SETTINGS.turnMs);
+  });
+
+  it('defaults to light with one plain background colour', () => {
+    expect(DEFAULT_SETTINGS.theme).toBe('light');
+    expect(DEFAULT_SETTINGS.bloom).toBe(0);
+  });
+
+  it('moves old default look settings across, and leaves real choices alone', async () => {
+    expect(migrateSettings({ theme: 'system', bloom: 0.7 })).toMatchObject({ theme: 'light', bloom: DEFAULT_SETTINGS.bloom, lookVersion: LOOK_VERSION });
+    expect(migrateSettings({ theme: 'dark', bloom: 0.4 })).toMatchObject({ theme: 'dark', bloom: 0.4 });
+    expect(migrateSettings({ lookVersion: LOOK_VERSION, theme: 'system', bloom: 0.7 })).toMatchObject({ theme: 'system', bloom: 0.7 });
+    await saveSettings({ theme: 'system', bloom: 0.7 });
+    expect((await loadSettings()).theme).toBe('light');
   });
 
   it('returns the fallback for a missing key', async () => {
