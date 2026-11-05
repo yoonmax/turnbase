@@ -2,13 +2,13 @@
 // taken on trust: its state is derived by running the algorithm backward, and what
 // it claims is then checked against that state.
 
-import { applyAlg, applyMove, applyMoves, centreIds, getCubeModel, solvedState, statesEqual, isSolved } from '../cube/CubeEngine.js';
+import { applyAlg, applyMove, applyMoves, centerIds, getCubeModel, solvedState, statesEqual, isSolved } from '../cube/CubeEngine.js';
 import { invertMoves } from '../cube/CubeMoves.js';
 import { parseMoves } from '../cube/CubeNotationParser.js';
 import { CORNER_NAMES, EDGE_NAMES, toCubies } from '../cube/CubeState.js';
 
 const SOLVED = solvedState(3);
-const HOME_CENTRES = centreIds(SOLVED).join();
+const HOME_CENTERS = centerIds(SOLVED).join();
 const faceOf = (stickerId) => Math.floor(stickerId / 9);
 const FACE = { U: 0, R: 1, F: 2, D: 3, L: 4, B: 5 };
 const at = (face, row, col) => FACE[face] * 9 + row * 3 + col;
@@ -27,7 +27,7 @@ export const U_MOVES = ['', 'U', 'U2', "U'"].map((alg) => (alg ? parseMoves(alg)
 
 /**
  * The state an algorithm solves: its inverse applied to a solved cube, starting from
- * whichever cube orientation leaves the centres at home. That way an algorithm with
+ * whichever cube orientation leaves the centers at home. That way an algorithm with
  * a net rotation in it, such as a y or an uneven slice, still shows the case in the
  * standard orientation, and applying it really does end in a solved cube.
  */
@@ -35,51 +35,51 @@ export function caseStateFor(moves) {
   const inverse = invertMoves(moves);
   for (const rotation of ROTATIONS) {
     const state = applyMoves(applyMoves(SOLVED, rotation), inverse);
-    if (centreIds(state).join() === HOME_CENTRES) return state;
+    if (centerIds(state).join() === HOME_CENTERS) return state;
   }
-  throw new Error('No orientation leaves the centres at home.');
+  throw new Error('No orientation leaves the centers at home.');
 }
 
-// Reads colours relative to the current centres, so a rotated cube reads the same.
-function colourReader(state) {
-  const centres = {};
-  for (const [face, index] of Object.entries(FACE)) centres[face] = faceOf(state[index * 9 + 4]);
-  return { centres, colourAt: (face, row, col) => faceOf(state[at(face, row, col)]) };
+// Reads colors relative to the current centers, so a rotated cube reads the same.
+function colorReader(state) {
+  const centers = {};
+  for (const [face, index] of Object.entries(FACE)) centers[face] = faceOf(state[index * 9 + 4]);
+  return { centers, colorAt: (face, row, col) => faceOf(state[at(face, row, col)]) };
 }
 
 export function crossSolved(state) {
-  const { centres, colourAt } = colourReader(state);
+  const { centers, colorAt } = colorReader(state);
   const dEdges = [[0, 1, 'F'], [1, 0, 'L'], [1, 2, 'R'], [2, 1, 'B']];
-  return dEdges.every(([r, c, side]) => colourAt('D', r, c) === centres.D && colourAt(side, 2, 1) === centres[side]);
+  return dEdges.every(([r, c, side]) => colorAt('D', r, c) === centers.D && colorAt(side, 2, 1) === centers[side]);
 }
 
 export function firstLayerSolved(state) {
-  const { centres, colourAt } = colourReader(state);
-  for (let r = 0; r < 3; r += 1) for (let c = 0; c < 3; c += 1) if (colourAt('D', r, c) !== centres.D) return false;
+  const { centers, colorAt } = colorReader(state);
+  for (let r = 0; r < 3; r += 1) for (let c = 0; c < 3; c += 1) if (colorAt('D', r, c) !== centers.D) return false;
   for (const side of ['F', 'R', 'B', 'L']) {
-    for (let c = 0; c < 3; c += 1) if (colourAt(side, 2, c) !== centres[side]) return false;
+    for (let c = 0; c < 3; c += 1) if (colorAt(side, 2, c) !== centers[side]) return false;
   }
   return true;
 }
 
 export function f2lSolved(state) {
   if (!firstLayerSolved(state)) return false;
-  const { centres, colourAt } = colourReader(state);
+  const { centers, colorAt } = colorReader(state);
   for (const side of ['F', 'R', 'B', 'L']) {
-    if (colourAt(side, 1, 0) !== centres[side] || colourAt(side, 1, 2) !== centres[side]) return false;
+    if (colorAt(side, 1, 0) !== centers[side] || colorAt(side, 1, 2) !== centers[side]) return false;
   }
   return true;
 }
 
 export function lastLayerOriented(state) {
-  const { centres, colourAt } = colourReader(state);
-  for (let r = 0; r < 3; r += 1) for (let c = 0; c < 3; c += 1) if (colourAt('U', r, c) !== centres.U) return false;
+  const { centers, colorAt } = colorReader(state);
+  for (let r = 0; r < 3; r += 1) for (let c = 0; c < 3; c += 1) if (colorAt('U', r, c) !== centers.U) return false;
   return true;
 }
 
 export function lastLayerEdgesOriented(state) {
-  const { centres, colourAt } = colourReader(state);
-  return [[0, 1], [1, 0], [1, 2], [2, 1]].every(([r, c]) => colourAt('U', r, c) === centres.U);
+  const { centers, colorAt } = colorReader(state);
+  return [[0, 1], [1, 0], [1, 2], [2, 1]].every(([r, c]) => colorAt('U', r, c) === centers.U);
 }
 
 /** Solved, allowing a final turn of the U layer. */
@@ -120,15 +120,15 @@ const SIDE_RING = ['B', 'R', 'F', 'L'];
 
 /**
  * The orientation pattern as seen from above: which of the 20 top-layer stickers show
- * the U colour. Canonical up to a turn of the U layer, so two states with the same
+ * the U color. Canonical up to a turn of the U layer, so two states with the same
  * fingerprint are the same OLL case.
  */
 export function ollFingerprint(state) {
-  const { centres } = colourReader(state);
+  const { centers } = colorReader(state);
   const read = (s) => {
-    const { colourAt: c } = colourReader(s);
-    const top = U_RING.map(([f, r, col]) => (c(f, r, col) === centres.U ? '1' : '0')).join('');
-    const sides = SIDE_RING.map((side) => [0, 1, 2].map((col) => (c(side, 0, col) === centres.U ? '1' : '0')).join('')).join('');
+    const { colorAt: c } = colorReader(s);
+    const top = U_RING.map(([f, r, col]) => (c(f, r, col) === centers.U ? '1' : '0')).join('');
+    const sides = SIDE_RING.map((side) => [0, 1, 2].map((col) => (c(side, 0, col) === centers.U ? '1' : '0')).join('')).join('');
     return `${top}|${sides}`;
   };
   return U_MOVES.map((auf) => read(applyMoves(state, auf))).sort()[0];
@@ -136,8 +136,8 @@ export function ollFingerprint(state) {
 
 /** Edge shape on top: 'dot', 'line', 'l' or 'cross'. */
 export function edgeShape(state) {
-  const { centres, colourAt } = colourReader(state);
-  const up = [[0, 1], [1, 2], [2, 1], [1, 0]].map(([r, c]) => colourAt('U', r, c) === centres.U);
+  const { centers, colorAt } = colorReader(state);
+  const up = [[0, 1], [1, 2], [2, 1], [1, 0]].map(([r, c]) => colorAt('U', r, c) === centers.U);
   const count = up.filter(Boolean).length;
   if (count === 4) return 'cross';
   if (count === 0) return 'dot';
@@ -146,8 +146,8 @@ export function edgeShape(state) {
 }
 
 export function orientedCornerCount(state) {
-  const { centres, colourAt } = colourReader(state);
-  return [[0, 0], [0, 2], [2, 0], [2, 2]].filter(([r, c]) => colourAt('U', r, c) === centres.U).length;
+  const { centers, colorAt } = colorReader(state);
+  return [[0, 0], [0, 2], [2, 0], [2, 2]].filter(([r, c]) => colorAt('U', r, c) === centers.U).length;
 }
 
 // Which piece sits in each top slot, relative to the U-layer turn that aligns it.
@@ -197,16 +197,16 @@ export function pllPieces(state) {
   return best.text;
 }
 
-/** Sticker colours on the four sides, relative to a chosen U-turn: a PLL's identity. */
+/** Sticker colors on the four sides, relative to a chosen U-turn: a PLL's identity. */
 function pllSides(state) {
-  const { centres, colourAt } = colourReader(state);
-  const order = [centres.B, centres.R, centres.F, centres.L];
-  const name = (colour) => order.indexOf(colour);
-  return SIDE_RING.map((side) => [0, 1, 2].map((c) => name(colourAt(side, 0, c))).join('')).join('');
+  const { centers, colorAt } = colorReader(state);
+  const order = [centers.B, centers.R, centers.F, centers.L];
+  const name = (color) => order.indexOf(color);
+  return SIDE_RING.map((side) => [0, 1, 2].map((c) => name(colorAt(side, 0, c))).join('')).join('');
 }
 
 /**
- * Canonical up to both a turn of the U layer and a recolouring by that turn, so two
+ * Canonical up to both a turn of the U layer and a recoloring by that turn, so two
  * states share this fingerprint exactly when they are the same PLL case.
  */
 export function pllFingerprint(state) {
@@ -218,7 +218,7 @@ export function pllFingerprint(state) {
     }
   }
   // Rotate the whole picture, too: the case does not depend on how it is held.
-  const canonicalise = (sides) => {
+  const canonicalize = (sides) => {
     const shifts = [];
     for (let k = 0; k < 4; k += 1) {
       const rotated = sides.slice(k * 3) + sides.slice(0, k * 3);
@@ -226,16 +226,16 @@ export function pllFingerprint(state) {
     }
     return shifts.sort()[0];
   };
-  return options.map(canonicalise).sort()[0];
+  return options.map(canonicalize).sort()[0];
 }
 
 /** Side patterns a human looks for: how many headlights and full bars are visible. */
 export function sidePatterns(state) {
-  const { colourAt } = colourReader(state);
+  const { colorAt } = colorReader(state);
   let headlights = 0;
   let bars = 0;
   for (const side of SIDE_RING) {
-    const [a, b, c] = [colourAt(side, 0, 0), colourAt(side, 0, 1), colourAt(side, 0, 2)];
+    const [a, b, c] = [colorAt(side, 0, 0), colorAt(side, 0, 1), colorAt(side, 0, 2)];
     if (a === b && b === c) bars += 1;
     else if (a === c) headlights += 1;
   }

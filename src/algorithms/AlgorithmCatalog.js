@@ -145,7 +145,7 @@ export function recognitionNotes(entry) {
   const state = entry.caseState;
   if (entry.family === 'oll') {
     const corners = orientedCornerCount(state);
-    return [`The edges on top form ${SHAPE_WORDS[edgeShape(state)]}.`, `${corners} ${corners === 1 ? 'corner shows' : 'corners show'} the top colour.`];
+    return [`The edges on top form ${SHAPE_WORDS[edgeShape(state)]}.`, `${corners} ${corners === 1 ? 'corner shows' : 'corners show'} the top color.`];
   }
   if (entry.family === 'pll') {
     const pieces = pllPieces(state);
@@ -170,7 +170,7 @@ export function recognitionNotes(entry) {
     const edgeInSlot = edge.startsWith('eFR');
     const twist = corner.slice(-1);
     const lines = [];
-    lines.push(cornerInSlot ? (twist === '0' ? 'The corner is in the slot, with the cross colour down.' : 'The corner is in the slot, twisted.') : `The corner is in the top layer, with the cross colour ${CORNER_FROM_KEY[twist]} when held above the slot.`);
+    lines.push(cornerInSlot ? (twist === '0' ? 'The corner is in the slot, with the cross color down.' : 'The corner is in the slot, twisted.') : `The corner is in the top layer, with the cross color ${CORNER_FROM_KEY[twist]} when held above the slot.`);
     lines.push(edgeInSlot ? (edge.endsWith('0') ? 'The edge is in the slot, already correct.' : 'The edge is in the slot, flipped.') : 'The edge is in the top layer.');
     return lines;
   }

@@ -2,7 +2,7 @@
 @import '@fontsource-variable/montserrat/wght.css';
 @import '@fontsource-variable/geist-mono/wght.css';
 
-/* Colours come from src/app/themes.js, set on <html> at runtime. These are the same
+/* Colors come from src/app/themes.js, set on <html> at runtime. These are the same
    tokens for the default theme, in case that script has not run yet. */
 :root {
   color-scheme: light;
@@ -128,8 +128,8 @@ h3 {
   letter-spacing: -0.04em;
 }
 
-/* Optional soft colour behind everything, off by default so the background is one plain
-   colour. It never animates and sits on its own layer, so it costs almost nothing. */
+/* Optional soft color behind everything, off by default so the background is one plain
+   color. It never animates and sits on its own layer, so it costs almost nothing. */
 .backdrop-blooms {
   position: fixed;
   inset: 0;

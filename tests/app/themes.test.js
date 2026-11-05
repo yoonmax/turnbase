@@ -3,7 +3,7 @@ import { DEFAULT_CUSTOM_THEME, PALETTES, buildTheme, contrast, ensureContrast, i
 
 const text = (t) => ['--ink', '--graphite', '--faint', '--hold', '--ready', '--warn', '--danger'].map((name) => [name, t.vars[name]]);
 
-describe('colour maths', () => {
+describe('color maths', () => {
   it('computes WCAG contrast', () => {
     expect(contrast('#000000', '#ffffff')).toBeCloseTo(21);
     expect(contrast('#ffffff', '#ffffff')).toBeCloseTo(1);
@@ -21,7 +21,7 @@ describe('colour maths', () => {
     expect(ensureContrast('#000000', '#ffffff', 4.5, '#000000')).toBe('#000000');
   });
 
-  it('recognises hex colours', () => {
+  it('recognizes hex colors', () => {
     expect(isHex('#a1B2c3')).toBe(true);
     expect(isHex('moss')).toBe(false);
     expect(isHex(null)).toBe(false);
@@ -76,7 +76,7 @@ describe('custom themes', () => {
 });
 
 describe('options', () => {
-  it('an accent overrides the palette, and ignores old non-colour values', () => {
+  it('an accent overrides the palette, and ignores old non-color values', () => {
     expect(buildTheme({ palette: 'glacier', accent: '#2563eb' }, 'light').vars['--accent']).toBe('#2563eb');
     expect(buildTheme({ palette: 'glacier', accent: 'moss' }, 'light').vars['--accent']).toBe(PALETTES.glacier.light.accent);
   });

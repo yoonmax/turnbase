@@ -172,7 +172,7 @@ export function moveFromDrag({ sticker, n = 3, drag, project }) {
     if (!best || Math.abs(along) > Math.abs(best.along)) best = { tangent, along };
   }
   const direction = best.tangent.map((v) => v * Math.sign(best.along));
-  // Rotating about n × t carries the surface point at n towards t.
+  // Rotating about n × t carries the surface point at n toward t.
   const axisVector = cross(normal, direction);
   const axis = axisVector.findIndex((v) => v !== 0);
   const quarter = axisVector[axis]; // Positive rotation about the +axis, or negative.

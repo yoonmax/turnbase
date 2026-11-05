@@ -13,13 +13,13 @@ const [U, R, F, , L, B] = [0, 1, 2, 3, 4, 5];
 
 // Positions in the top view. Slots 0..3 are UR UF UL UB for edges, and URF UFL ULB UBR
 // for corners, matching the cubie order in CubeState.
-const EDGE_CENTRES = [
+const EDGE_CENTERS = [
   [2.5, 1.5],
   [1.5, 2.5],
   [0.5, 1.5],
   [1.5, 0.5],
 ];
-const CORNER_CENTRES = [
+const CORNER_CENTERS = [
   [2.5, 2.5],
   [0.5, 2.5],
   [0.5, 0.5],
@@ -32,11 +32,11 @@ function arrowsFor(state) {
   const out = [];
   for (let slot = 0; slot < 4; slot += 1) {
     const piece = cubies.ep[slot];
-    if (piece !== slot && piece < 4) out.push({ from: EDGE_CENTRES[slot], to: EDGE_CENTRES[piece] });
+    if (piece !== slot && piece < 4) out.push({ from: EDGE_CENTERS[slot], to: EDGE_CENTERS[piece] });
   }
   for (let slot = 0; slot < 4; slot += 1) {
     const piece = cubies.cp[slot];
-    if (piece !== slot && piece < 4) out.push({ from: CORNER_CENTRES[slot], to: CORNER_CENTRES[piece] });
+    if (piece !== slot && piece < 4) out.push({ from: CORNER_CENTERS[slot], to: CORNER_CENTERS[piece] });
   }
   return out;
 }
@@ -105,7 +105,7 @@ function TopDiagram({ state, colors, mode, size }) {
 
 const iso = (x, y, z) => [(x - z) * 0.866 * 10, (x + z) * 0.5 * 10 - y * 10];
 
-/** Three visible faces, drawn from the state. Last-layer pieces are greyed out. */
+/** Three visible faces, drawn from the state. Last-layer pieces are grayed out. */
 export function IsoDiagram({ state, colors, size, mask = true }) {
   const model = getCubeModel(3);
   const quad = (points, fill, key) => (

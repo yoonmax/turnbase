@@ -23,7 +23,7 @@ test('choosing a palette changes the page, and survives a reload with no flash',
   await expect(page.getByTestId('palette-ember')).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('a custom theme takes your colours and decides light or dark itself', async ({ page }) => {
+test('a custom theme takes your colors and decides light or dark itself', async ({ page }) => {
   await page.goto('/settings');
   await page.getByTestId('palette-custom').click();
   await expect(page.getByTestId('custom-theme')).toBeVisible();
@@ -86,7 +86,7 @@ test('during a solve the page is only digits, and no glass is being composited',
   expect(await page.getByTestId('main-nav').evaluate((el) => getComputedStyle(el).visibility)).toBe('visible');
 });
 
-test('a first-time visitor gets light with one plain background colour, whatever the system prefers', async ({ browser }) => {
+test('a first-time visitor gets light with one plain background color, whatever the system prefers', async ({ browser }) => {
   const context = await browser.newContext({ colorScheme: 'dark', baseURL: 'http://localhost:5211', viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
   await page.goto('/');
@@ -218,21 +218,21 @@ test('penalty controls appear only for the solve just finished', async ({ page }
   await expect(page.getByTestId('penalty-review')).toBeHidden();
 });
 
-test('the digits stay centred on the page, with the solve panel open or closed', async ({ page }) => {
+test('the digits stay centerd on the page, with the solve panel open or closed', async ({ page }) => {
   await openTimer(page);
-  const centre = async () => {
+  const center = async () => {
     const box = await page.getByTestId('timer-digits').boundingBox();
     return box.x + box.width / 2;
   };
-  const open = await centre();
+  const open = await center();
   await page.getByTestId('rail-toggle').click();
   await page.waitForTimeout(600);
-  expect(Math.abs((await centre()) - open)).toBeLessThan(1);
+  expect(Math.abs((await center()) - open)).toBeLessThan(1);
   expect(Math.abs(open - 720)).toBeLessThan(2);
   await expect(page.getByTestId('solve-rail')).toHaveAttribute('data-open', 'false');
 });
 
-test('the cube still matches its logic in a coloured theme', async ({ page }) => {
+test('the cube still matches its logic in a colored theme', async ({ page }) => {
   await page.goto('/settings');
   await page.getByTestId('palette-orchid').click();
   await page.getByTestId('setting-theme-dark').click();

@@ -141,7 +141,7 @@ export function faceletString(state, n = 3) {
   return Array.from(colors, (c) => FACE_ORDER[c]).join('');
 }
 
-/** Solved in any orientation: every face is one colour. */
+/** Solved in any orientation: every face is one color. */
 export function isSolved(state, n = 3) {
   const { perFace } = getCubeModel(n);
   for (let f = 0; f < 6; f += 1) {
@@ -153,7 +153,7 @@ export function isSolved(state, n = 3) {
   return true;
 }
 
-/** Sticker ids of the 3×3 centres, by position, in U R F D L B order. */
-export function centreIds(state) {
+/** Sticker ids of the 3×3 centers, by position, in U R F D L B order. */
+export function centerIds(state) {
   return [4, 13, 22, 31, 40, 49].map((i) => state[i]);
 }

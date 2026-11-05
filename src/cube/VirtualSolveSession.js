@@ -2,7 +2,7 @@
 //
 // Moves are timestamped from the first turn, which is when the clock starts. Rotating
 // the camera is not a move and never reaches this log. Whole-cube rotations are logged
-// so a replay is exact, but they do not count towards moves or turns per second.
+// so a replay is exact, but they do not count toward moves or turns per second.
 
 import { isSolved } from './CubeEngine.js';
 

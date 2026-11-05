@@ -1,4 +1,4 @@
-// Short synthesised sounds. Nothing is loaded from the network. The audio context
+// Short synthesized sounds. Nothing is loaded from the network. The audio context
 // starts on first use, which browsers only allow after a user gesture, and every
 // key press that reaches this module has been one.
 

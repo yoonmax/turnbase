@@ -20,7 +20,7 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Trainer.** Recognition, recall, execution on the virtual cube, flashcards and SM-2 spaced review, with progress by set.
 
-**Themes.** Light by default, on one plain background colour. Six palettes in light and dark, or your own background and accent colours, with optional background glow and adjustable glass. Text contrast is calculated so any combination stays readable.
+**Themes.** Light by default, on one plain background color. Six palettes in light and dark, or your own background and accent colors, with optional background glow and adjustable glass. Text contrast is calculated so any combination stays readable.
 
 **Virtual solving.** A timed solve on the 3D cube, recorded move by move with timestamps and replayable at original speed. These go to a separate session, because they are not comparable with physical times.
 
@@ -109,7 +109,7 @@ The uniformity of random-state generation is cubing.js's documented design. The 
 
 If the generator fails, turnbase shows an error and a retry. It never falls back silently to a weaker scramble.
 
-**Using TNoodle.** turnbase does not run TNoodle. To practise on official scrambles, generate them with [TNoodle-WCA-1.2.3](https://www.worldcubeassociation.org/regulations/scrambles/), then use the pen button beside the scramble to paste each one in. Cube notation is validated first, and the solve records it as entered by you.
+**Using TNoodle.** turnbase does not run TNoodle. To practice on official scrambles, generate them with [TNoodle-WCA-1.2.3](https://www.worldcubeassociation.org/regulations/scrambles/), then use the pen button beside the scramble to paste each one in. Cube notation is validated first, and the solve records it as entered by you.
 
 ## How it is built
 
@@ -137,7 +137,7 @@ While a solve runs, the page drops everything else. The navigation and panels ar
 
 ### The look, and frame rate
 
-The timer and other big numbers are set in Montserrat ExtraBold, with fixed-width digits so a running time never jitters, and page titles in Montserrat Black. Panels are translucent, with backdrop blur, raised saturation and a lit top edge. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favour of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
+The timer and other big numbers are set in Montserrat ExtraBold, with fixed-width digits so a running time never jitters, and page titles in Montserrat Black. Panels are translucent, with backdrop blur, raised saturation and a lit top edge. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favor of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
 
 Selection thumbs, switches and panels move on a spring, using compositor-only properties where possible. Off-screen library sections skip rendering, and each page's code starts loading when the pointer heads for its link.
 
@@ -149,15 +149,15 @@ A state is an array with one entry per sticker position, holding which sticker i
 
 Corners and edges are read from this state when needed, and the three laws of the cube (matching parity, twists summing to 0 mod 3, flips to 0 mod 2) are checked in tests. The engine is also compared against cubing.js's KPuzzle on random sequences of every move family.
 
-The picture cannot drift from the logic, because pieces have fixed places and colours are read straight from the state. The only motion is one layer's rotation during a turn. When the turn ends the rotation is dropped and the exact next state is drawn, so no rotation ever accumulates. Browser tests sample the rendered pixel under each visible sticker and compare it with the engine, including after hundreds of fast turns.
+The picture cannot drift from the logic, because pieces have fixed places and colors are read straight from the state. The only motion is one layer's rotation during a turn. When the turn ends the rotation is dropped and the exact next state is drawn, so no rotation ever accumulates. Browser tests sample the rendered pixel under each visible sticker and compare it with the engine, including after hundreds of fast turns.
 
 ### Notation
 
 A recursive-descent parser handles `R`, `R'`, `R2`, `R2'`, slices, `Rw` and lowercase wide moves, rotations, `(R U R' U')3`, commutators `[A, B]`, conjugates `[A: B]`, nesting and comments. Errors give a position and a reason. Anything ambiguous is an error rather than a guess: lowercase `r` is rejected on a 4×4, and `M` is rejected on even cubes. Expansion is compared with cubing.js's parser in tests.
 
-### Colours
+### Colors
 
-The cube uses the Western scheme: white on U, yellow on D, green on F, blue on B, red on R, orange on L. Library views show the cross on the bottom, by repainting U↔D and L↔R, which changes only the colours and not the logic.
+The cube uses the Western scheme: white on U, yellow on D, green on F, blue on B, red on R, orange on L. Library views show the cross on the bottom, by repainting U↔D and L↔R, which changes only the colors and not the logic.
 
 ## The algorithm library
 
@@ -210,14 +210,14 @@ Backups are validated before anything is written, and the import runs in one tra
 - Sounds have been checked for playing without error, not by ear.
 - Solve data does not sync between devices.
 
-## Licences
+## Licenses
 
-turnbase is released under the [MIT License](LICENSE). That covers this repository's code. Its dependencies keep their own licences, including these:
+turnbase is released under the [MIT License](LICENSE). That covers this repository's code. Its dependencies keep their own licenses, including these:
 
 - [cubing.js](https://github.com/cubing/cubing.js), MPL-2.0 or GPL-3.0-or-later. It is bundled, unmodified, into `public/vendor/cubing` by `scripts/vendor-cubing.mjs`. Its source is at that link.
 - [Three.js](https://github.com/mrdoob/three.js), React Three Fiber, Drei, React, Zustand and Tailwind CSS, MIT.
-- [GSAP](https://gsap.com/), under its standard no-charge licence.
+- [GSAP](https://gsap.com/), under its standard no-charge license.
 - Montserrat and Geist Mono, SIL Open Font License.
-- WCA rules are summarised from the [WCA Regulations](https://www.worldcubeassociation.org/regulations/). SM-2 is by Piotr Woźniak.
+- WCA rules are summarized from the [WCA Regulations](https://www.worldcubeassociation.org/regulations/). SM-2 is by Piotr Woźniak.
 
 turnbase is an independent project, not affiliated with the World Cube Association. Rubik's Cube is a trademark of its owner.

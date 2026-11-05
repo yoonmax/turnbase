@@ -140,7 +140,7 @@ export default function SettingsPage() {
             <Toggle id="hideRunningTime" label="Hide the time while solving" value={settings.hideRunningTime} onChange={set('hideRunningTime')} />
             <Choice id="decimals" label="Decimal places" hint="Recorded results and averages are always hundredths. This changes how a finished solve is displayed, and running time shows at most two places." value={settings.decimals} options={[[1, '1'], [2, '2'], [3, '3']]} onChange={set('decimals')} />
             <Slider id="timerFontScale" label="Timer size" value={settings.timerFontScale} min={0.6} max={1.2} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={set('timerFontScale')} />
-            <Toggle id="timerColors" label="Colour the digits while holding" hint="Red while holding, green when ready." value={settings.timerColors} onChange={set('timerColors')} />
+            <Toggle id="timerColors" label="Color the digits while holding" hint="Red while holding, green when ready." value={settings.timerColors} onChange={set('timerColors')} />
             <Toggle id="focusMode" label="Focus mode" hint="Hide everything except the digits while a solve is underway." value={settings.focusMode} onChange={set('focusMode')} />
             <div className="py-2.5 border-t border-rule" data-testid="timer-shortcuts">
               <p className="m-0">Keyboard shortcuts on the timer</p>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
             <Toggle id="inspection" label="Use inspection" hint="Press and release once to start inspecting, then hold and release to start solving." value={settings.inspection} onChange={set('inspection')} />
             <Toggle id="inspectionAutoPenalties" label="Apply penalties automatically" hint="Off still records what you earned, but applies nothing." value={settings.inspectionAutoPenalties} onChange={set('inspectionAutoPenalties')} />
             <Toggle id="inspectionAudio" label="Beep at 8 and 12 seconds" hint="The two times a judge calls out." value={settings.inspectionAudio} onChange={set('inspectionAudio')} />
-            <Toggle id="inspectionVisual" label="Change colour at 8 and 12 seconds" value={settings.inspectionVisual} onChange={set('inspectionVisual')} />
+            <Toggle id="inspectionVisual" label="Change color at 8 and 12 seconds" value={settings.inspectionVisual} onChange={set('inspectionVisual')} />
           </Group>
 
           <Group title="Scrambles">
@@ -185,7 +185,7 @@ export default function SettingsPage() {
 
           <Group title="Cube appearance">
             <Choice id="cubeStyle" label="Style" value={settings.cubeStyle} options={[['stickered', 'Stickered'], ['stickerless', 'Stickerless']]} onChange={set('cubeStyle')} />
-            <Setting label="Colour scheme" htmlFor="scheme">
+            <Setting label="Color scheme" htmlFor="scheme">
               <select id="scheme" className="field" value={settings.cubeScheme} data-testid="setting-cubeScheme" onChange={(e) => update({ cubeScheme: e.target.value, customColors: e.target.value === 'custom' ? settings.customColors ?? colors : settings.customColors })}>
                 {Object.entries(CUBE_SCHEMES).map(([id, scheme]) => (
                   <option key={id} value={id}>

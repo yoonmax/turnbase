@@ -217,7 +217,7 @@ test('a Pyraminx session draws through cubing.js', async ({ page }) => {
   await expect(page.getByTestId('cube-net')).toHaveCount(0);
 });
 
-test('a pasted scramble is used, validated and labelled', async ({ page }) => {
+test('a pasted scramble is used, validated and labeled', async ({ page }) => {
   await openTimer(page);
   await page.getByTestId('scramble-own').click();
   await page.getByTestId('own-scramble-input').fill('R Q');

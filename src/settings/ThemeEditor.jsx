@@ -39,7 +39,7 @@ function Swatch({ name, paper, ink, blooms, accent, selected, onClick, testId, g
   );
 }
 
-function ColourField({ label, value, onChange, testId }) {
+function ColorField({ label, value, onChange, testId }) {
   return (
     <label className="flex flex-col gap-1 text-[0.8125rem] text-graphite">
       {label}
@@ -48,7 +48,7 @@ function ColourField({ label, value, onChange, testId }) {
   );
 }
 
-/** Choosing a look: a palette or your own colours, an accent, and how much glass. */
+/** Choosing a look: a palette or your own colors, an accent, and how much glass. */
 export function ThemeEditor({ Choice, Slider, Setting }) {
   const settings = useApp((s) => s.settings);
   const update = useApp((s) => s.updateSettings);
@@ -93,18 +93,18 @@ export function ThemeEditor({ Choice, Slider, Setting }) {
 
       {settings.palette === 'custom' ? (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-3 border-t border-rule" data-testid="custom-theme">
-          <ColourField label="Background" value={custom.paper} testId="custom-paper" onChange={setCustom('paper')} />
-          <ColourField label="Accent" value={custom.accent} testId="custom-accent" onChange={setCustom('accent')} />
-          <ColourField label="Glow one" value={custom.bloomA} testId="custom-bloomA" onChange={setCustom('bloomA')} />
-          <ColourField label="Glow two" value={custom.bloomB} testId="custom-bloomB" onChange={setCustom('bloomB')} />
-          <p className="col-span-full m-0 text-[0.8125rem] text-graphite">Text colours are worked out from your background, so they always stay readable.</p>
+          <ColorField label="Background" value={custom.paper} testId="custom-paper" onChange={setCustom('paper')} />
+          <ColorField label="Accent" value={custom.accent} testId="custom-accent" onChange={setCustom('accent')} />
+          <ColorField label="Glow one" value={custom.bloomA} testId="custom-bloomA" onChange={setCustom('bloomA')} />
+          <ColorField label="Glow two" value={custom.bloomB} testId="custom-bloomB" onChange={setCustom('bloomB')} />
+          <p className="col-span-full m-0 text-[0.8125rem] text-graphite">Text colors are worked out from your background, so they always stay readable.</p>
         </div>
       ) : (
         <Choice id="theme" label="Mode" value={settings.theme} options={[['system', 'System'], ['light', 'Light'], ['dark', 'Dark']]} onChange={(theme) => update({ theme })} />
       )}
 
       {settings.palette !== 'custom' ? (
-        <Setting label="Accent colour" hint="Used for primary buttons, switches and sliders." htmlFor="accent-colour">
+        <Setting label="Accent color" hint="Used for primary buttons, switches and sliders." htmlFor="accent-color">
           <div className="flex items-center gap-2">
             {usingCustomAccent ? (
               <button type="button" className="btn btn-quiet" data-testid="accent-reset" onClick={() => update({ accent: null })}>
@@ -112,7 +112,7 @@ export function ThemeEditor({ Choice, Slider, Setting }) {
               </button>
             ) : null}
             <input
-              id="accent-colour"
+              id="accent-color"
               type="color"
               className="w-9 h-9 rounded-full bg-transparent"
               value={usingCustomAccent ? settings.accent : paletteAccent}

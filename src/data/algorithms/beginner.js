@@ -8,9 +8,9 @@
 export const BEGINNER = [
   {
     id: 'cross-above',
-    name: 'Cross edge above its centre',
+    name: 'Cross edge above its center',
     category: 'White cross',
-    explanation: 'The white edge is in the top layer, directly above its matching centre, with white facing up. Turn the front face twice to bring it down.',
+    explanation: 'The white edge is in the top layer, directly above its matching center, with white facing up. Turn the front face twice to bring it down.',
     algs: ['F2'],
     goal: { pieces: ['DF'] },
     keeps: ['cross-others'],

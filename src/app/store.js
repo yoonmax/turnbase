@@ -86,7 +86,7 @@ export const useApp = create((set, get) => ({
     }
   },
 
-  /** A scramble from elsewhere, such as TNoodle. It is labelled as entered by the user. */
+  /** A scramble from elsewhere, such as TNoodle. It is labeled as entered by the user. */
   setOwnScramble(text) {
     const session = get().currentSession();
     scrambleRequest += 1;

@@ -1,6 +1,6 @@
-// Themes are data. A palette names a few colours for light and dark, and everything else
+// Themes are data. A palette names a few colors for light and dark, and everything else
 // the interface uses is derived from them here, with contrast enforced by calculation,
-// so a preset or a user's custom colours cannot produce unreadable text.
+// so a preset or a user's custom colors cannot produce unreadable text.
 
 export const PALETTES = {
   glacier: {
@@ -68,7 +68,7 @@ export function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Moves a colour towards `toward` in small steps until it reaches the wanted contrast. */
+/** Moves a color toward `toward` in small steps until it reaches the wanted contrast. */
 export function ensureContrast(color, background, ratio, toward) {
   let current = color;
   for (let i = 1; i <= 20 && contrast(current, background) < ratio; i += 1) {

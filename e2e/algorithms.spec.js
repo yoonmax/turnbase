@@ -34,7 +34,7 @@ test('opening a case shows its true state in 3D, and Play solves it', async ({ p
   await expectPictureMatchesLogic(page, LIBRARY_NAMES);
 });
 
-test('the current move is highlighted in step with the cube, in its face colour', async ({ page }) => {
+test('the current move is highlighted in step with the cube, in its face color', async ({ page }) => {
   await openCase(page, 'pll-t');
   await page.getByTestId('player-forward').click();
   const current = page.locator('[data-testid=move-token][data-current=true]');
@@ -149,7 +149,7 @@ test('filters and sorting', async ({ page }) => {
   expect(first).toMatch(/6 moves/);
 });
 
-test('favourite and learned status persist across reloads and show in the library', async ({ page }) => {
+test('favorite and learned status persist across reloads and show in the library', async ({ page }) => {
   await openCase(page, 'pll-t');
   await page.getByTestId('detail-learned').click();
   await expect(page.getByTestId('detail-learned')).toHaveText('Learned');

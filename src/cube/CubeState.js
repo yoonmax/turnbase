@@ -1,7 +1,7 @@
 // Cubie-level reading of a 3×3 state: corner and edge permutation and orientation,
 // whole-cube orientation, and the legality check that proves a state is reachable.
 
-import { applyMove, applyMoves, centreIds, getCubeModel, solvedState } from './CubeEngine.js';
+import { applyMove, applyMoves, centerIds, getCubeModel, solvedState } from './CubeEngine.js';
 import { makeMove } from './CubeMoves.js';
 
 const NORMAL = { U: [0, 1, 0], D: [0, -1, 0], R: [1, 0, 0], L: [-1, 0, 0], F: [0, 0, 1], B: [0, 0, -1] };
@@ -51,12 +51,12 @@ const ORIENTATIONS = (() => {
   const found = new Map();
   const start = solvedState(3);
   const queue = [{ state: start, moves: [] }];
-  found.set(centreIds(start).join(), []);
+  found.set(centerIds(start).join(), []);
   while (queue.length) {
     const { state, moves } = queue.shift();
     for (const axis of ['x', 'y', 'z']) {
       const nextState = applyMove(state, rotationMoves[axis]);
-      const key = centreIds(nextState).join();
+      const key = centerIds(nextState).join();
       if (!found.has(key)) {
         const nextMoves = [...moves, rotationMoves[axis]];
         found.set(key, nextMoves);
@@ -70,20 +70,20 @@ const ORIENTATIONS = (() => {
 export const ORIENTATION_COUNT = ORIENTATIONS.size;
 
 /**
- * Turns the whole cube so the centres are in their home positions. Rotations do
+ * Turns the whole cube so the centers are in their home positions. Rotations do
  * not alter how pieces relate, so this is the canonical form for comparisons.
  * Returns { state, rotation }, where rotation is the sequence applied.
  */
-export function normaliseOrientation(state) {
-  // Search over rotations for the one that sends centres home.
-  const key = centreIds(state).join();
-  const home = centreIds(solvedState(3)).join();
+export function normalizeOrientation(state) {
+  // Search over rotations for the one that sends centers home.
+  const key = centerIds(state).join();
+  const home = centerIds(solvedState(3)).join();
   if (key === home) return { state, rotation: [] };
   for (const rotation of ORIENTATIONS.values()) {
     const rotated = applyMoves(state, rotation);
-    if (centreIds(rotated).join() === home) return { state: rotated, rotation };
+    if (centerIds(rotated).join() === home) return { state: rotated, rotation };
   }
-  return null; // Centres are not a rotation of the solved centres: illegal.
+  return null; // Centers are not a rotation of the solved centers: illegal.
 }
 
 /**
@@ -92,9 +92,9 @@ export function normaliseOrientation(state) {
  * Returns null if the stickers in some slot do not form a real piece.
  */
 export function toCubies(inputState) {
-  const normalised = normaliseOrientation(inputState);
-  if (!normalised) return null;
-  const { state } = normalised;
+  const normalized = normalizeOrientation(inputState);
+  if (!normalized) return null;
+  const { state } = normalized;
   const cp = [];
   const co = [];
   for (const trio of CORNER_STICKERS) {

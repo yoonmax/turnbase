@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import TimerPage from '../pages/TimerPage.jsx';
 
 // The timer ships in the main bundle so it is ready first. Everything else, including
-// all of Three.js, loads when it is opened or when the pointer heads towards it.
+// all of Three.js, loads when it is opened or when the pointer heads toward it.
 const LOADERS = {
   algorithms: () => import('../pages/AlgorithmsPage.jsx'),
   trainer: () => import('../pages/TrainerPage.jsx'),

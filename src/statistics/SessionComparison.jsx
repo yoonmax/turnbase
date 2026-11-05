@@ -18,12 +18,12 @@ export function SessionComparison() {
   const [data, setData] = useState(new Map());
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     Promise.all(chosen.map(async (id) => [id, await listSolves(id)])).then((rows) => {
-      if (!cancelled) setData(new Map(rows));
+      if (!canceled) setData(new Map(rows));
     });
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [chosen, solvesVersion]);
 

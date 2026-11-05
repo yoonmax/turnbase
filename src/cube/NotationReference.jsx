@@ -56,7 +56,7 @@ export function NotationReference({ onTry }) {
   return (
     <div className="flex flex-col gap-5" data-testid="notation-reference">
       <p className="m-0 text-[0.8125rem] text-graphite">
-        Each diagram shows a solved cube just after that move. Select one to try it on the cube. Colours follow the Western scheme: white on top, green in front, red on the right.
+        Each diagram shows a solved cube just after that move. Select one to try it on the cube. Colors follow the Western scheme: white on top, green in front, red on the right.
       </p>
       {SECTIONS.map((section) => (
         <section key={section.title}>

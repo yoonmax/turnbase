@@ -92,7 +92,7 @@ export async function importDocument(doc) {
 
 const csvCell = (value) => {
   const text = String(value ?? '');
-  // A leading =, +, - or @ is a formula in a spreadsheet, so neutralise it.
+  // A leading =, +, - or @ is a formula in a spreadsheet, so neutralize it.
   const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
   return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 };

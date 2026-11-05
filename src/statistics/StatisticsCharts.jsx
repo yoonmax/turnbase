@@ -3,8 +3,8 @@ import { isDnf } from './AverageCalculator.js';
 import { formatCs, formatDay } from '../utils/format.js';
 
 // One restrained chart vocabulary: a single y axis, a recessive grid, 2px lines, one
-// tooltip per x position. Colours come from --series-1..4, in fixed order, and were
-// checked for colour-vision separation against both page backgrounds.
+// tooltip per x position. Colors come from --series-1..4, in fixed order, and were
+// checked for color-vision separation against both page backgrounds.
 
 export const SERIES_COLOR = (i) => `var(--series-${(i % 4) + 1})`;
 

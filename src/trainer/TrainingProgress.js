@@ -1,4 +1,4 @@
-// Learned status, favourites, practice results and custom algorithms, stored locally.
+// Learned status, favorites, practice results and custom algorithms, stored locally.
 
 import { create } from 'zustand';
 import { emptyProgress, listCustomAlgs, listProgress, saveCustomAlg, saveProgress, deleteCustomAlg } from '../storage/AlgorithmProgressRepository.js';

@@ -406,7 +406,7 @@ export default function TrainerPage() {
           <h1 className="m-0 text-xl font-medium tracking-tight">Practice</h1>
           <div className="grid gap-1">
             <span className="text-[0.8125rem] text-graphite">Cases</span>
-            <div className="segmented flex-wrap justify-self-start" role="group" aria-label="Cases to practise">
+            <div className="segmented flex-wrap justify-self-start" role="group" aria-label="Cases to practice">
               {TRAINING_SETS.map((set) => (
                 <button key={set.id} type="button" aria-pressed={set.id === setId} data-testid={`trainset-${set.id}`} onClick={() => setSetId(set.id)}>
                   {set.name}
@@ -428,17 +428,17 @@ export default function TrainerPage() {
           {cases.length ? (
             <div className="flex items-center gap-3">
               <button type="button" className="btn btn-primary" data-testid="trainer-start" onClick={() => setRunning({ cases, mode: modeId })}>
-                Practise {cases.length} {cases.length === 1 ? 'case' : 'cases'}
+                Practice {cases.length} {cases.length === 1 ? 'case' : 'cases'}
               </button>
             </div>
           ) : (
             <EmptyState title={modeId === 'review' ? 'Nothing is due' : 'No cases here yet'}>
               {setId === 'custom'
-                ? 'Save an algorithm in the editor on the Cube page to practise it here.'
+                ? 'Save an algorithm in the editor on the Cube page to practice it here.'
                 : setId === 'favorites'
-                  ? 'Star cases in the algorithm library to practise them here.'
+                  ? 'Star cases in the algorithm library to practice them here.'
                   : modeId === 'review'
-                    ? 'Everything in this set is scheduled for later. Practise another set, or come back then.'
+                    ? 'Everything in this set is scheduled for later. Practice another set, or come back then.'
                     : 'Every case in the library is marked learned.'}
             </EmptyState>
           )}

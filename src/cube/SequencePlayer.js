@@ -68,7 +68,7 @@ export class SequencePlayer {
     this.timer = null;
   }
 
-  // Lands exactly on the current index, cancelling any turn in flight.
+  // Lands exactly on the current index, canceling any turn in flight.
   settle() {
     this.stopTimer();
     this.token += 1;

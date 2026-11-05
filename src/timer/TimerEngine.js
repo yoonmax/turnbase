@@ -132,7 +132,7 @@ if (typeof window !== 'undefined') {
 }
 
 function isKeyboardFocusedControl(target) {
-  // A control the user tabbed to keeps its normal Space and Enter behaviour. After a
+  // A control the user tabbed to keeps its normal Space and Enter behavior. After a
   // mouse click it does not, so the next Space starts a solve instead of pressing the
   // button again. That includes the nav link clicked to get to this page.
   return focusedByKeyboard && Boolean(target?.closest?.('button, a, summary'));

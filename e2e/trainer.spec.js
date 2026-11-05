@@ -54,12 +54,12 @@ test('spaced review removes what is no longer due', async ({ page }) => {
   await page.goto('/trainer');
   await page.getByTestId('trainset-beginner').click();
   await page.getByTestId('trainmode-review').click();
-  await expect(page.getByTestId('trainer-start')).toHaveText('Practise 11 cases');
+  await expect(page.getByTestId('trainer-start')).toHaveText('Practice 11 cases');
   await page.getByTestId('trainer-start').click();
   await page.getByTestId('trainer-reveal').click();
   await page.getByTestId('grade-easy').click();
   await page.getByTestId('practice-exit').click();
-  await expect(page.getByTestId('trainer-start')).toHaveText('Practise 10 cases');
+  await expect(page.getByTestId('trainer-start')).toHaveText('Practice 10 cases');
 });
 
 test('execution: solving the case on the 3D cube is detected and recorded', async ({ page }) => {

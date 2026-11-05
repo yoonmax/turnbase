@@ -10,7 +10,7 @@
 // `// line` and `/* block */` comments are ignored. Anything that could be read
 // in more than one way is an error rather than a guess.
 
-import { invertMoves, makeMove, movesToString, normaliseAmount } from './CubeMoves.js';
+import { invertMoves, makeMove, movesToString, normalizeAmount } from './CubeMoves.js';
 
 const PRIMES = new Set(["'", '’', '‘', '′', 'ʼ', '`', '´']);
 const FACE_LETTERS = new Set(['U', 'D', 'R', 'L', 'F', 'B']);
@@ -73,7 +73,7 @@ class Parser {
     const { repeat, inverted, end } = this.suffix();
     if (atom.type === 'move') {
       const signed = (inverted ? -1 : 1) * repeat;
-      const amount = normaliseAmount(signed * atom.base);
+      const amount = normalizeAmount(signed * atom.base);
       return { type: 'move', amount, spec: atom.spec, start, end };
     }
     return { type: 'repeat', node: atom, repeat, inverted, start, end };

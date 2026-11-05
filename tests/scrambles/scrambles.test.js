@@ -37,7 +37,7 @@ describe('3×3 scrambles from cubing.js', () => {
       const state = applyMoves(solvedState(), parsed.moves);
       expect(isLegal(state)).toBe(true);
       expect(isSolved(state)).toBe(false);
-      // Only face turns, so centres stay put and the two engines can be compared directly.
+      // Only face turns, so centers stay put and the two engines can be compared directly.
       expect(parsed.moves.every((m) => m.kind === 'face')).toBe(true);
       const cubies = toCubies(state);
       const theirs = kpuzzle.defaultPattern().applyAlg(new Alg(text)).patternData;

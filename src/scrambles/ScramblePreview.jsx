@@ -14,11 +14,11 @@ export function TwistyDiagram({ puzzle, scramble, size = 170 }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    let canceled = false;
     let player = null;
     loadTwisty()
       .then(({ TwistyPlayer }) => {
-        if (cancelled || !host.current) return;
+        if (canceled || !host.current) return;
         player = new TwistyPlayer({
           puzzle,
           alg: scramble,
@@ -32,10 +32,10 @@ export function TwistyDiagram({ puzzle, scramble, size = 170 }) {
         host.current.replaceChildren(player);
       })
       .catch(() => {
-        if (!cancelled) setFailed(true);
+        if (!canceled) setFailed(true);
       });
     return () => {
-      cancelled = true;
+      canceled = true;
       player?.remove();
     };
   }, [puzzle, scramble, size]);

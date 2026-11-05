@@ -18,7 +18,7 @@ export async function runSolve(page, { holdMs = 340, solveMs = 250 } = {}) {
 
 export const timerState = (page) => page.evaluate(() => document.documentElement.dataset.timer);
 
-/** Reads every sticker of a net as its fill colour. */
+/** Reads every sticker of a net as its fill color. */
 export const netColors = (page, scope) =>
   (scope ?? page).getByTestId('cube-net').first().locator('rect').evaluateAll((rects) => rects.map((r) => r.getAttribute('data-fill')));
 
@@ -49,7 +49,7 @@ export async function typeMoves(page, notation) {
   }
 }
 
-// Named by hue, because lighting changes brightness but not which colour it is.
+// Named by hue, because lighting changes brightness but not which color it is.
 function classify([r, g, b]) {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
@@ -67,7 +67,7 @@ function classify([r, g, b]) {
 }
 
 /**
- * Screenshots the page and reads the colour under every sticker the camera can see.
+ * Screenshots the page and reads the color under every sticker the camera can see.
  * Returns [{ id, seen }], to compare against what the engine says is there.
  */
 export async function renderedStickers(page) {

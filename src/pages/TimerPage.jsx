@@ -212,7 +212,7 @@ export default function TimerPage() {
   );
 }
 
-// Exposed for the browser tests and for debugging timing behaviour.
+// Exposed for the browser tests and for debugging timing behavior.
 if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debug')) {
   window.__turnbaseTimer = machine;
 }

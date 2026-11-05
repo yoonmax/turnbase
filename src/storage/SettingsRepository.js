@@ -7,10 +7,10 @@ export const DEFAULT_SETTINGS = {
   // Appearance
   theme: 'light', // 'light' | 'dark' | 'system'
   palette: 'glacier', // A name from app/themes.js, or 'custom'.
-  accent: null, // A colour that overrides the palette's accent, or null.
+  accent: null, // A color that overrides the palette's accent, or null.
   customTheme: null,
   glass: 0.7, // 0 is solid panels.
-  bloom: 0, // Strength of the optional background glow. Zero is one plain colour.
+  bloom: 0, // Strength of the optional background glow. Zero is one plain color.
   // Timer
   holdMs: 300,
   trigger: 'space', // 'space' | 'enter' | 'twokey'

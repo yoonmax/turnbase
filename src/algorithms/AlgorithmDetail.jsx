@@ -62,9 +62,9 @@ export function AlgorithmDetail({ entry, onBack }) {
           <button
             type="button"
             className="icon-btn"
-            aria-label={record?.favorite ? 'Remove from favourites' : 'Add to favourites'}
+            aria-label={record?.favorite ? 'Remove from favorites' : 'Add to favorites'}
             aria-pressed={Boolean(record?.favorite)}
-            title="Favourite"
+            title="Favorite"
             data-testid="detail-favorite"
             onClick={() => toggleFavorite(entry.id)}
           >
@@ -105,7 +105,7 @@ export function AlgorithmDetail({ entry, onBack }) {
 
         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 mt-6 pt-5 border-t border-rule text-[0.875rem]">
           <section>
-            <h2 className="m-0 mb-1.5 text-[0.8125rem] font-medium">How to recognise it</h2>
+            <h2 className="m-0 mb-1.5 text-[0.8125rem] font-medium">How to recognize it</h2>
             {entry.explanation ? <p className="m-0 text-graphite">{entry.explanation}</p> : null}
             <ul className="m-0 p-0 list-none text-graphite" data-testid="recognition-notes">
               {notes.map((note) => (

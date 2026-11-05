@@ -42,7 +42,7 @@ function stickerGeometry(style) {
 }
 
 /**
- * Draws a controller's pose. The pieces have fixed places, colours come straight
+ * Draws a controller's pose. The pieces have fixed places, colors come straight
  * from the exact state, and the only motion is the current layer's rotation, so
  * the picture can never disagree with the logic once a turn ends.
  */
@@ -58,7 +58,7 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
   const renderCount = useRef(0);
   const lastDrawn = useRef({ visual: null, colors: null, rotating: false });
 
-  // Cube-space scale: pieces are one unit wide and centred on the origin.
+  // Cube-space scale: pieces are one unit wide and centerd on the origin.
   const bodies = useMemo(() => {
     const seen = [];
     const half = (n - 1) / 2;

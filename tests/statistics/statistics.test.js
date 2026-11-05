@@ -190,7 +190,7 @@ const solve = (rawMs, penalty = 'none', createdAt = 0, extra = {}) => ({
 });
 
 describe('session aggregation', () => {
-  it('computes counts, bests, and centre values', () => {
+  it('computes counts, bests, and center values', () => {
     const solves = [
       solve(10000),
       solve(12000, '+2'),

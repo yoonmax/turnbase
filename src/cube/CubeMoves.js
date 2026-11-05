@@ -38,7 +38,7 @@ const ROTATIONS = {
  * Builds a move object.
  * kind: 'face' | 'wide' | 'slice' | 'rotation'
  * family: the face, slice or rotation letter.
- * amount: signed quarter turns, normalised to -2, -1, 1 or 2.
+ * amount: signed quarter turns, normalized to -2, -1, 1 or 2.
  * outer/inner: for faces, the layers counted from the named face (1-based), so
  *   R is inner 1, outer 1; Rw is 1..2; 3Rw is 1..3; 2R is 2..2.
  */
@@ -46,7 +46,7 @@ export function makeMove(kind, family, amount, { inner = 1, outer = 1, notation 
   return { kind, family, amount, inner, outer, notation, text: moveToString({ kind, family, amount, inner, outer, notation }) };
 }
 
-export function normaliseAmount(raw) {
+export function normalizeAmount(raw) {
   // R3 is R', R4 is nothing, R5 is R. A written half-turn direction (R2') stays.
   if (raw === 0) return 0;
   const sign = Math.sign(raw);
@@ -117,7 +117,7 @@ export function simplifyMoves(moves) {
       last.inner === move.inner &&
       last.outer === move.outer
     ) {
-      const total = normaliseAmount(last.amount + move.amount);
+      const total = normalizeAmount(last.amount + move.amount);
       out.pop();
       if (total !== 0) out.push(withAmount(move, total));
     } else {

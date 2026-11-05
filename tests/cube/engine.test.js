@@ -19,7 +19,7 @@ import {
   ORIENTATION_COUNT,
   isLegal,
   legalityReport,
-  normaliseOrientation,
+  normalizeOrientation,
   toCubies,
 } from '../../src/cube/CubeState.js';
 
@@ -116,7 +116,7 @@ describe('move laws', () => {
     expect(statesEqual(applyAlg(start, 'z'), applyAlg(start, "F S B'"))).toBe(true);
   });
 
-  it('rotations leave a solved cube solved but change which colour is where', () => {
+  it('rotations leave a solved cube solved but change which color is where', () => {
     for (const r of ROTATION) {
       const rotated = applyAlg(solvedState(), r);
       expect(isSolved(rotated)).toBe(true);
@@ -205,7 +205,7 @@ describe('legality', () => {
 
   it('reads rotated states through their canonical orientation', () => {
     const state = applyAlg(solvedState(), "x y2 R U");
-    const { state: canon, rotation } = normaliseOrientation(state);
+    const { state: canon, rotation } = normalizeOrientation(state);
     expect(rotation.length).toBeGreaterThan(0);
     expect(isLegal(canon)).toBe(true);
   });
@@ -254,7 +254,7 @@ describe('agreement with an independent reference (cubing.js KPuzzle)', () => {
     const kpuzzle = await cube3x3x3.kpuzzle();
     const rand = seeded(7);
     for (let t = 0; t < 300; t += 1) {
-      // Only face moves keep the centres home, so both sides read the same frame.
+      // Only face moves keep the centers home, so both sides read the same frame.
       // Slices, wide moves and rotations are covered by the next test.
       const text = randomAlg(rand, 25, FACE);
       const ours = toCubies(applyAlg(solvedState(), text));
@@ -263,7 +263,7 @@ describe('agreement with an independent reference (cubing.js KPuzzle)', () => {
         .toEqual(ours.ep);
       expect(theirs.CORNERS.pieces.map((p, i) => [cornerMap[i], cornerMap[p]]).sort((a, b) => a[0] - b[0]).map((x) => x[1]))
         .toEqual(ours.cp);
-      // Same oriented-or-not pattern; the two conventions differ only in labelling.
+      // Same oriented-or-not pattern; the two conventions differ only in labeling.
       theirs.CORNERS.orientation.forEach((o, i) => {
         expect(o === 0).toBe(ours.co[cornerMap[i]] === 0);
       });

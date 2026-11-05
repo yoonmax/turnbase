@@ -16,7 +16,7 @@ describe('standard notation', () => {
     expect(norm("R'2")).toBe("R2'");
   });
 
-  it('normalises typographic primes', () => {
+  it('normalizes typographic primes', () => {
     expect(norm('R’ U‘ F′ Dʼ L` B´')).toBe("R' U' F' D' L' B'");
   });
 

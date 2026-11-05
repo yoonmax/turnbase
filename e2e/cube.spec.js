@@ -203,7 +203,7 @@ test('camera views change the picture, not the cube', async ({ page }) => {
   await expectPictureMatchesLogic(page);
 });
 
-test('style and colour settings take effect', async ({ page }) => {
+test('style and color settings take effect', async ({ page }) => {
   await openCube(page);
   await page.waitForTimeout(100);
   const stickered = await page.getByTestId('cube-canvas').screenshot();

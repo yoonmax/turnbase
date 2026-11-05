@@ -61,7 +61,7 @@ describe('settings and key-value data', () => {
     expect(loaded.turnMs).toBe(DEFAULT_SETTINGS.turnMs);
   });
 
-  it('defaults to light with one plain background colour', () => {
+  it('defaults to light with one plain background color', () => {
     expect(DEFAULT_SETTINGS.theme).toBe('light');
     expect(DEFAULT_SETTINGS.bloom).toBe(0);
   });
@@ -133,7 +133,7 @@ describe('backup', () => {
     expect(validateBackup(orphan)[0]).toMatch(/not in the file/);
   });
 
-  it('writes CSV with escaping and neutralised formulas', () => {
+  it('writes CSV with escaping and neutralized formulas', () => {
     const csv = solvesToCsv(
       [{ ...buildSolve({ rawMs: 12340, sessionId: 's', scramble: "R U'" }), comment: 'said "wow", then =SUM(A1)', tags: ['a', 'b'] }],
       new Map([['s', '=Main']]),

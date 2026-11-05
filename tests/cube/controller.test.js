@@ -373,7 +373,7 @@ describe('dragging on the cube', () => {
     expect(drag(stickerOf('U', 2, 1), 40, 0)).toBe('F');
   });
 
-  it('every drag starts the sticker moving towards the pointer, on every visible face', () => {
+  it('every drag starts the sticker moving toward the pointer, on every visible face', () => {
     // A small rotation of the sticker's surface point gives its initial velocity,
     // which should agree with the drag direction whatever the face and direction.
     const views = model.stickers.filter((s) => s.normal[2] === 1 || s.normal[1] === 1 || s.normal[0] === 1);

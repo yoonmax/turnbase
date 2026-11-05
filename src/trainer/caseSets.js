@@ -13,7 +13,7 @@ export const TRAINING_SETS = [
   { id: 'beginner', name: 'Beginner' },
   { id: 'two-look', name: '2-look' },
   { id: 'custom', name: 'Custom' },
-  { id: 'favorites', name: 'Favourites' },
+  { id: 'favorites', name: 'Favorites' },
   { id: 'unlearned', name: 'Not learned' },
 ];
 

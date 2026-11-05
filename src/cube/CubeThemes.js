@@ -1,4 +1,4 @@
-// Colour schemes map each face to a colour. The documented default is the Western
+// Color schemes map each face to a color. The documented default is the Western
 // scheme: white on U, yellow on D, green on F, blue on B, red on R, orange on L.
 // Faces are listed in engine order: U R F D L B.
 
@@ -28,7 +28,7 @@ export function resolveScheme(settings) {
 
 export const FACE_NAMES = { U: 'Up', R: 'Right', F: 'Front', D: 'Down', L: 'Left', B: 'Back' };
 
-/** Dark or light text, whichever reads better on a face colour. */
+/** Dark or light text, whichever reads better on a face color. */
 export function inkOn(hex) {
   const n = parseInt(hex.slice(1), 16);
   const r = (n >> 16) & 255;
@@ -38,7 +38,7 @@ export function inkOn(hex) {
   return luminance > 0.55 ? '#1c1d1f' : '#ffffff';
 }
 
-/** Which face colour represents a move, for highlighting notation. */
+/** Which face color represents a move, for highlighting notation. */
 export function moveFace(move) {
   if (!move) return null;
   if (move.kind === 'slice') return { M: 'L', E: 'D', S: 'F' }[move.family];

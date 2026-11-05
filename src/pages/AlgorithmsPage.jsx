@@ -22,7 +22,7 @@ function CaseTile({ entry, selected, record }) {
       <div className="flex items-start justify-between h-[76px]">
         <CaseDiagram entry={entry} size={76} />
         <div className="flex items-center gap-1 pt-0.5">
-          {record?.favorite ? <Star size={12} strokeWidth={1.6} className="text-graphite" fill="currentColor" aria-label="Favourite" /> : null}
+          {record?.favorite ? <Star size={12} strokeWidth={1.6} className="text-graphite" fill="currentColor" aria-label="Favorite" /> : null}
           {record?.learned ? <span className="w-1.5 h-1.5 rounded-full bg-ready" title="Learned" aria-label="Learned" data-testid="tile-learned" /> : null}
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function AlgorithmsPage() {
 
   const learnedCount = useMemo(() => CATALOG.filter((c) => c.family === family && progress.get(c.id)?.learned).length, [family, progress]);
 
-  // Group by category when browsing in catalogue order.
+  // Group by category when browsing in catalog order.
   const grouped = useMemo(() => {
     if (searching || sort !== 'catalog') return [{ category: null, items: results }];
     const map = new Map();
@@ -164,7 +164,7 @@ export default function AlgorithmsPage() {
                 <option value="all">All cases</option>
                 <option value="learned">Learned</option>
                 <option value="unlearned">Not learned</option>
-                <option value="favorites">Favourites</option>
+                <option value="favorites">Favorites</option>
               </select>
               <select className="field" aria-label="Sort" value={sort} data-testid="filter-sort" onChange={(e) => setSort(e.target.value)}>
                 <option value="catalog">Standard order</option>

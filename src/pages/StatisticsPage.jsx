@@ -201,12 +201,12 @@ export default function StatisticsPage() {
   // edited in their own session.
   useEffect(() => {
     if (!allSessionsScope || !session) return undefined;
-    let cancelled = false;
+    let canceled = false;
     listAllSolves().then((all) => {
-      if (!cancelled) setPuzzleSolves(all.filter((s) => s.puzzle === session.puzzle && s.source === (session.kind === 'virtual' ? 'virtual' : 'physical')));
+      if (!canceled) setPuzzleSolves(all.filter((s) => s.puzzle === session.puzzle && s.source === (session.kind === 'virtual' ? 'virtual' : 'physical')));
     });
     return () => {
-      cancelled = true;
+      canceled = true;
     };
   }, [allSessionsScope, session, sessionSolves]);
 

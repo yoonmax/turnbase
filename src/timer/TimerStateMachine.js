@@ -181,7 +181,7 @@ export function createTimerMachine(initialConfig = {}) {
       runStart = null;
       inspectionStart = null;
       pendingStart = null;
-      if (state !== STATE.IDLE) go(STATE.IDLE, { t, cancelled: true });
+      if (state !== STATE.IDLE) go(STATE.IDLE, { t, canceled: true });
     },
 
     /** Clears a finished result, ready for the next attempt. */

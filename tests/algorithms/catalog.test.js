@@ -20,14 +20,14 @@ import {
   solvedUpToAuf,
   cornersPermutedUpToAuf,
 } from '../../src/algorithms/AlgorithmValidator.js';
-import { applyMoves, centreIds, isSolved, solvedState } from '../../src/cube/CubeEngine.js';
+import { applyMoves, centerIds, isSolved, solvedState } from '../../src/cube/CubeEngine.js';
 import { parseMoves } from '../../src/cube/CubeNotationParser.js';
 import { isLegal } from '../../src/cube/CubeState.js';
 
 const OLL = casesInSet('oll');
 const PLL = casesInSet('pll');
 const F2L = casesInSet('f2l');
-const HOME_CENTRES = centreIds(solvedState()).join();
+const HOME_CENTERS = centerIds(solvedState()).join();
 
 describe('every entry in the catalog', () => {
   it('has a unique id', () => {
@@ -36,9 +36,9 @@ describe('every entry in the catalog', () => {
 
   for (const entry of CATALOG) {
     describe(entry.id, () => {
-      it('has a legal starting state, with centres at home, which its algorithm solves', () => {
+      it('has a legal starting state, with centers at home, which its algorithm solves', () => {
         expect(isLegal(entry.caseState)).toBe(true);
-        expect(centreIds(entry.caseState).join()).toBe(HOME_CENTRES);
+        expect(centerIds(entry.caseState).join()).toBe(HOME_CENTERS);
         const result = applyMoves(entry.caseState, entry.primary.moves);
         expect(isSolved(result)).toBe(true);
       });
@@ -75,7 +75,7 @@ describe('OLL', () => {
   }
 
   // Structure of each number, stated independently of the algorithms. Edges on top:
-  // dot, line, l or cross. Corners on top: how many show the top colour.
+  // dot, line, l or cross. Corners on top: how many show the top color.
   const STRUCTURE = {
     1: ['dot', 0], 2: ['dot', 0], 3: ['dot', 1], 4: ['dot', 1], 17: ['dot', 2], 18: ['dot', 2], 19: ['dot', 2], 20: ['dot', 4],
     5: ['l', 1], 6: ['l', 1], 7: ['l', 1], 8: ['l', 1], 11: ['l', 1], 12: ['l', 1], 9: ['l', 1], 10: ['l', 1],
@@ -127,8 +127,8 @@ describe('PLL', () => {
     });
   }
 
-  // Which neighbouring sides show matching outer stickers (headlights) or full bars,
-  // read off a solved-to-case state. These counts are what cubers recognise on sight.
+  // Which neighboring sides show matching outer stickers (headlights) or full bars,
+  // read off a solved-to-case state. These counts are what cubers recognize on sight.
   it('chiral pairs are mirror-distinct, not duplicates', () => {
     const pairs = [['Aa', 'Ab'], ['Ja', 'Jb'], ['Ra', 'Rb'], ['Na', 'Nb'], ['Ua', 'Ub'], ['Ga', 'Gc'], ['Gb', 'Gd']];
     for (const [a, b] of pairs) {
