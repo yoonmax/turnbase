@@ -137,7 +137,7 @@ While a solve runs, the page drops everything else. The navigation and panels ar
 
 ### The look, and frame rate
 
-Big numbers and page titles are set in Montserrat Black, with fixed-width digits so a running time never jitters. Panels are translucent, with backdrop blur, raised saturation and a lit top edge. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favour of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
+The timer and other big numbers are set in Montserrat ExtraBold, with fixed-width digits so a running time never jitters, and page titles in Montserrat Black. Panels are translucent, with backdrop blur, raised saturation and a lit top edge. This imitates liquid glass rather than refracting light through it: true edge refraction is costly and only some browsers support it, so it was left out in favour of frame rate. At 0% the Glass setting makes panels solid, which is the lightest option for older devices.
 
 Selection thumbs, switches and panels move on a spring, using compositor-only properties where possible. Off-screen library sections skip rendering, and each page's code starts loading when the pointer heads for its link.
 

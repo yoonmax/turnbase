@@ -147,14 +147,14 @@ test('holding turns the digits red, ready turns them green, with no glow behind'
   await page.keyboard.press('Escape');
 });
 
-test('the timer is Montserrat Black, and its digits do not change width', async ({ page }) => {
+test('the timer is Montserrat ExtraBold, and its digits do not change width', async ({ page }) => {
   await openTimer(page);
   await page.evaluate(() => document.fonts.ready);
   const digits = page.getByTestId('timer-digits');
   const style = await digits.evaluate((el) => ({ family: getComputedStyle(el).fontFamily, weight: getComputedStyle(el).fontWeight }));
   expect(style.family).toContain('Montserrat');
-  expect(style.weight).toBe('900');
-  expect(await page.evaluate(() => document.fonts.check('900 40px "Montserrat Variable"', '0123456789'))).toBe(true);
+  expect(style.weight).toBe('800');
+  expect(await page.evaluate(() => document.fonts.check('800 40px "Montserrat Variable"', '0123456789'))).toBe(true);
   const widths = await digits.evaluate((el) =>
     '0123456789'.split('').map((d) => {
       const probe = el.cloneNode();
