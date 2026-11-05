@@ -1,0 +1,46 @@
+{
+  "name": "turnbase",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "turnbase: a minimalist speedcubing timer, interactive cube and algorithm trainer.",
+  "scripts": {
+    "dev": "vite --port 5210 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --port 5211 --strictPort",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "verify:algorithms": "vitest run tests/algorithms",
+    "vendor": "node scripts/vendor-cubing.mjs",
+    "predev": "node scripts/vendor-cubing.mjs",
+    "prebuild": "node scripts/vendor-cubing.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@gsap/react": "^2.1.2",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "cubing": "^0.66.1",
+    "gsap": "^3.15.1",
+    "idb": "^8.0.4",
+    "lucide-react": "^1.68.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.5",
+    "three": "^0.187.0",
+    "zustand": "^5.0.16"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/vite": "^4.3.4",
+    "@vitejs/plugin-react": "^6.2.1",
+    "esbuild": "^0.28.2",
+    "fake-indexeddb": "^6.2.7",
+    "tailwindcss": "^4.3.4",
+    "vite": "^8.3.5",
+    "vitest": "^5.1.0"
+  }
+}

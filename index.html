@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>turnbase</title>
+    <meta name="description" content="turnbase is a speedcubing timer with WCA-style scrambles and statistics, an interactive 3D cube, and a verified algorithm library." />
+    <meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1115" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      // Applied before first paint so a saved dark theme never flashes light.
+      try {
+        var t = localStorage.getItem('turnbase-theme') || 'system';
+        var dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        var saved = JSON.parse(localStorage.getItem('turnbase-vars') || 'null');
+        if (saved) {
+          var chosen = dark ? saved.dark : saved.light;
+          document.documentElement.dataset.theme = chosen.dark ? 'dark' : 'light';
+          for (var k in chosen.vars) document.documentElement.style.setProperty(k, chosen.vars[k]);
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

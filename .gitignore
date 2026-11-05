@@ -1,0 +1,8 @@
+node_modules
+dist
+public/vendor
+test-results
+playwright-report
+.claude
+.vercel
+.DS_Store

@@ -1,0 +1,131 @@
+// Beginner's method and the two-look sets. Each has an explicit goal, which
+// tests/algorithms verifies on the cube: from the entry's starting state, the
+// sequence must achieve `goal` without disturbing what `keeps` names.
+//
+// Goals: 'pieces' with named cubies in place, 'edgesOriented', 'oriented',
+// 'cornersPermuted', 'edgesPermuted', 'solved' (last layer included, up to AUF).
+
+export const BEGINNER = [
+  {
+    id: 'cross-above',
+    name: 'Cross edge above its centre',
+    category: 'White cross',
+    explanation: 'The white edge is in the top layer, directly above its matching centre, with white facing up. Turn the front face twice to bring it down.',
+    algs: ['F2'],
+    goal: { pieces: ['DF'] },
+    keeps: ['cross-others'],
+  },
+  {
+    id: 'cross-flipped',
+    name: 'Cross edge flipped in place',
+    category: 'White cross',
+    explanation: 'The edge is in its slot on the bottom, but white faces outwards. Lift it, then bring it back in correctly. The last D-layer moves restore any cross edge that was disturbed.',
+    algs: ["F' D R' D'"],
+    goal: { pieces: ['DF'] },
+    keeps: ['cross-others'],
+  },
+  {
+    id: 'corner-right',
+    name: 'Corner with white facing right',
+    category: 'First-layer corners',
+    explanation: 'The corner sits above its slot with white on the right. Lift the slot, drop the corner in, close the slot.',
+    algs: ["R U R'"],
+    goal: { pieces: ['DFR'] },
+    keeps: ['cross'],
+  },
+  {
+    id: 'corner-front',
+    name: 'Corner with white facing front',
+    category: 'First-layer corners',
+    explanation: 'The mirror case. White faces you, so the front face opens the slot.',
+    algs: ["F' U' F"],
+    goal: { pieces: ['DFR'] },
+    keeps: ['cross'],
+  },
+  {
+    id: 'corner-up',
+    name: 'Corner with white facing up',
+    category: 'First-layer corners',
+    explanation: 'White is on top, so the corner has to be turned to face the side first. The first three moves do that, and the last three insert it.',
+    algs: ["R U2 R' U' R U R'"],
+    goal: { pieces: ['DFR'] },
+    keeps: ['cross'],
+  },
+  {
+    id: 'middle-right',
+    name: 'Middle edge to the right',
+    category: 'Middle-layer edges',
+    explanation: 'The edge is at the top front and belongs in the right slot. Move it away, pair it with the first-layer corner, and insert the two together.',
+    algs: ["U R U' R' U' F' U F"],
+    goal: { pieces: ['FR', 'DFR'] },
+    keeps: ['first-layer'],
+  },
+  {
+    id: 'middle-left',
+    name: 'Middle edge to the left',
+    category: 'Middle-layer edges',
+    explanation: 'The mirror case, for an edge that belongs in the left slot.',
+    algs: ["U' L' U L U F U' F'"],
+    goal: { pieces: ['FL', 'DLF'] },
+    keeps: ['first-layer'],
+  },
+  {
+    id: 'yellow-cross',
+    name: 'Yellow cross',
+    category: 'Yellow cross',
+    explanation: 'With a horizontal line of yellow on top, this makes the cross. From an L shape, hold it at back and left and run it twice. From a dot, run it, then treat what remains as an L shape.',
+    algs: ["F R U R' U' F'"],
+    goal: { edgesOriented: true },
+    keeps: ['f2l'],
+    startEdges: 'line',
+  },
+  {
+    id: 'yellow-corners',
+    name: 'Orient the yellow corners',
+    category: 'Last-layer orientation',
+    explanation: 'The Sune. Hold a corner with yellow already on top at the front left and run it, repeating until every corner shows yellow on top.',
+    algs: ["R U R' U R U2 R'"],
+    goal: { oriented: true },
+    keeps: ['f2l'],
+  },
+  {
+    id: 'permute-corners',
+    name: 'Place the corners',
+    category: 'Last-layer permutation',
+    explanation: 'This cycles three corners and keeps the edges. Keep a correct corner at the front right, and repeat if needed.',
+    algs: ["R' F R' B2 R F' R' B2 R2"],
+    goal: { cornersPermuted: true },
+    keeps: ['f2l', 'oriented'],
+  },
+  {
+    id: 'permute-edges',
+    name: 'Place the edges',
+    category: 'Last-layer permutation',
+    explanation: 'This cycles three edges and keeps the corners. Hold a solved edge at the back. The cube is then solved.',
+    algs: ["R U' R U R U R U' R' U' R2"],
+    goal: { solved: true },
+    keeps: ['f2l', 'oriented'],
+  },
+];
+
+export const TWO_LOOK_OLL = [
+  { id: 'edges-line', name: 'Edges: line', category: 'Orient edges', startEdges: 'line', algs: ["F R U R' U' F'"], goal: { edgesOriented: true }, keeps: ['f2l'] },
+  { id: 'edges-l', name: 'Edges: L shape', category: 'Orient edges', startEdges: 'l', algs: ["f R U R' U' f'"], goal: { edgesOriented: true }, keeps: ['f2l'] },
+  { id: 'edges-dot', name: 'Edges: dot', category: 'Orient edges', startEdges: 'dot', algs: ["F R U R' U' F' f R U R' U' f'"], goal: { edgesOriented: true }, keeps: ['f2l'] },
+  { id: 'corners-sune', name: 'Corners: Sune', category: 'Orient corners', algs: ["R U R' U R U2 R'"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 27 },
+  { id: 'corners-antisune', name: 'Corners: Anti-Sune', category: 'Orient corners', algs: ["R U2 R' U' R U' R'"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 26 },
+  { id: 'corners-h', name: 'Corners: H', category: 'Orient corners', algs: ["R U2 R' U' R U R' U' R U' R'"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 21 },
+  { id: 'corners-pi', name: 'Corners: Pi', category: 'Orient corners', algs: ["R U2 R2 U' R2 U' R2 U2 R"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 22 },
+  { id: 'corners-u', name: 'Corners: U', category: 'Orient corners', algs: ["R2 D R' U2 R D' R' U2 R'"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 23 },
+  { id: 'corners-t', name: 'Corners: T', category: 'Orient corners', algs: ["r U R' U' r' F R F'"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 24 },
+  { id: 'corners-l', name: 'Corners: L', category: 'Orient corners', algs: ["F' r U R' U' r' F R"], goal: { oriented: true }, keeps: ['f2l'], matchesOll: 25 },
+];
+
+export const TWO_LOOK_PLL = [
+  { id: 'adjacent-corners', name: 'Corners: adjacent swap', category: 'Permute corners', algs: ["R U R' U' R' F R2 U' R' U' R U R' F'"], goal: { cornersPermuted: true }, keeps: ['f2l', 'oriented'], matchesPll: 'T' },
+  { id: 'diagonal-corners', name: 'Corners: diagonal swap', category: 'Permute corners', algs: ["F R U' R' U' R U R' F' R U R' U' R' F R F'"], goal: { cornersPermuted: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Y' },
+  { id: 'ua', name: 'Edges: Ua', category: 'Permute edges', algs: ["M2 U M U2 M' U M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Ua' },
+  { id: 'ub', name: 'Edges: Ub', category: 'Permute edges', algs: ["M2 U' M U2 M' U' M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Ub' },
+  { id: 'h', name: 'Edges: H', category: 'Permute edges', algs: ['M2 U M2 U2 M2 U M2'], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'H' },
+  { id: 'z', name: 'Edges: Z', category: 'Permute edges', algs: ["M' U M2 U M2 U M' U2 M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Z' },
+];
