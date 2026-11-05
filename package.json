@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "turnbase: a minimalist speedcubing timer, interactive cube and algorithm trainer.",
+  "license": "MIT",
   "scripts": {
     "dev": "vite --port 5210 --strictPort",
     "build": "vite build",

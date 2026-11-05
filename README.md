@@ -212,7 +212,7 @@ Backups are validated before anything is written, and the import runs in one tra
 
 ## Licences
 
-turnbase depends on these, among others:
+turnbase is released under the [MIT License](LICENSE). That covers this repository's code. Its dependencies keep their own licences, including these:
 
 - [cubing.js](https://github.com/cubing/cubing.js), MPL-2.0 or GPL-3.0-or-later. It is bundled, unmodified, into `public/vendor/cubing` by `scripts/vendor-cubing.mjs`. Its source is at that link.
 - [Three.js](https://github.com/mrdoob/three.js), React Three Fiber, Drei, React, Zustand and Tailwind CSS, MIT.
