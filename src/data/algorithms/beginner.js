@@ -127,5 +127,5 @@ export const TWO_LOOK_PLL = [
   { id: 'ua', name: 'Edges: Ua', category: 'Permute edges', algs: ["M2 U M U2 M' U M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Ua' },
   { id: 'ub', name: 'Edges: Ub', category: 'Permute edges', algs: ["M2 U' M U2 M' U' M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Ub' },
   { id: 'h', name: 'Edges: H', category: 'Permute edges', algs: ['M2 U M2 U2 M2 U M2'], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'H' },
-  { id: 'z', name: 'Edges: Z', category: 'Permute edges', algs: ["M' U M2 U M2 U M' U2 M2"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Z' },
+  { id: 'z', name: 'Edges: Z', category: 'Permute edges', algs: ["M' U M2 U M2 U M' U2 M2 U'"], goal: { solved: true }, keeps: ['f2l', 'oriented'], matchesPll: 'Z' },
 ];

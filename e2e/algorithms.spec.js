@@ -180,6 +180,17 @@ test('a slow-path sample of cases: F2L, 2-look and beginner all open and solve',
   }
 });
 
+test('each PLL tile draws the right number of arrows, including the ones that were wrong', async ({ page }) => {
+  await page.goto('/algorithms');
+  const arrowCount = (id) => page.locator(`[data-case-id=${id}] [data-testid=case-diagram] line`).count();
+  const expected = { 'pll-jb': 4, 'pll-ra': 4, 'pll-rb': 4, 'pll-z': 4, 'pll-t': 4, 'pll-aa': 3, 'pll-ua': 3, 'pll-ga': 6, 'pll-h': 4, 'pll-e': 4 };
+  await expect(page.locator('[data-case-id=pll-z]')).toBeVisible();
+  for (const [id, count] of Object.entries(expected)) {
+    await page.locator(`[data-case-id=${id}]`).scrollIntoViewIfNeeded();
+    expect(await arrowCount(id), id).toBe(count);
+  }
+});
+
 test('unavailable sets are named as unavailable', async ({ page }) => {
   await page.goto('/algorithms');
   await expect(page.getByTestId('case-grid')).toContainText('Not in this library: COLL, CMLL, Winter Variation, ZBLL');

@@ -16,13 +16,14 @@ import {
   pllFingerprint,
   pllPieces,
   preAufFor,
+  pllArrows,
   sidePatterns,
   solvedUpToAuf,
   cornersPermutedUpToAuf,
 } from '../../src/algorithms/AlgorithmValidator.js';
 import { applyMoves, centerIds, isSolved, solvedState } from '../../src/cube/CubeEngine.js';
 import { parseMoves } from '../../src/cube/CubeNotationParser.js';
-import { isLegal } from '../../src/cube/CubeState.js';
+import { CORNER_STICKERS, EDGE_STICKERS, isLegal } from '../../src/cube/CubeState.js';
 
 const OLL = casesInSet('oll');
 const PLL = casesInSet('pll');
@@ -149,6 +150,101 @@ describe('PLL', () => {
     expect(sidePatterns(getCase('pll-e').caseState)).toEqual({ headlights: 0, bars: 0 });
     // Ua: one solved side (a bar) and three sets of headlights.
     expect(sidePatterns(getCase('pll-ua').caseState)).toEqual({ headlights: 3, bars: 1 });
+  });
+});
+
+describe('PLL diagram arrows', () => {
+  const withArrows = [...PLL, ...casesInSet('2lp')];
+  const EXPECTED_COUNT = {
+    'corners:3': 3,
+    'edges:3': 3,
+    'corners:2+2': 4,
+    'edges:2+2': 4,
+    'corners:2 edges:2': 4,
+    'corners:3 edges:3': 6,
+  };
+  const pairs = (list) => list.map((a) => `${a.from}>${a.to}`).sort();
+
+  for (const entry of withArrows) {
+    it(`${entry.id}: draws only the swaps and cycles of its true case`, () => {
+      const { edges, corners } = pllArrows(entry.caseState);
+      const best = pllPieces(entry.caseState);
+      expect(edges.length + corners.length).toBe(EXPECTED_COUNT[best]);
+      if (entry.pieces) expect(best).toBe(entry.pieces);
+    });
+
+    it(`${entry.id}: every arrow agrees with the actual stickers`, () => {
+      // Read straight from the stickers: following an arrow must put each one home.
+      const s = entry.caseState;
+      const { edges, corners } = pllArrows(s);
+      for (const { from, to } of edges) {
+        EDGE_STICKERS[from].forEach((position, k) => expect(s[position]).toBe(EDGE_STICKERS[to][k]));
+      }
+      for (const { from, to } of corners) {
+        CORNER_STICKERS[from].forEach((position, k) => expect(s[position]).toBe(CORNER_STICKERS[to][k]));
+      }
+      const movedEdges = new Set(edges.map((a) => a.from));
+      const movedCorners = new Set(corners.map((a) => a.from));
+      for (let slot = 0; slot < 4; slot += 1) {
+        if (!movedEdges.has(slot)) EDGE_STICKERS[slot].forEach((position) => expect(s[position]).toBe(position));
+        if (!movedCorners.has(slot)) CORNER_STICKERS[slot].forEach((position) => expect(s[position]).toBe(position));
+      }
+    });
+
+    it(`${entry.id}: its algorithm finishes solved with no extra turn`, () => {
+      expect(isSolved(applyMoves(entry.caseState, entry.primary.moves))).toBe(true);
+    });
+  }
+
+  it('the four cases that needed a final turn now show their true arrows', () => {
+    // Slots: edges UR UF UL UB, corners URF UFL ULB UBR.
+    expect(pairs(pllArrows(getCase('pll-jb').caseState).edges)).toEqual(['0>1', '1>0']);
+    expect(pairs(pllArrows(getCase('pll-jb').caseState).corners)).toEqual(['0>3', '3>0']);
+    expect(pllArrows(getCase('pll-ra').caseState).corners).toHaveLength(2);
+    expect(pllArrows(getCase('pll-ra').caseState).edges).toHaveLength(2);
+    expect(pllArrows(getCase('pll-rb').caseState).corners).toHaveLength(2);
+    expect(pllArrows(getCase('pll-rb').caseState).edges).toHaveLength(2);
+    expect(pllArrows(getCase('pll-z').caseState).corners).toHaveLength(0);
+    expect(pllArrows(getCase('pll-z').caseState).edges).toHaveLength(4);
+  });
+
+  it('T perm swaps the two right corners and the left and right edges', () => {
+    const { edges, corners } = pllArrows(getCase('pll-t').caseState);
+    expect(pairs(edges)).toEqual(['0>2', '2>0']);
+    expect(pairs(corners)).toEqual(['0>3', '3>0']);
+  });
+
+  it('H perm swaps both pairs of opposite edges, and no corners', () => {
+    const { edges, corners } = pllArrows(getCase('pll-h').caseState);
+    expect(pairs(edges)).toEqual(['0>2', '1>3', '2>0', '3>1']);
+    expect(corners).toEqual([]);
+  });
+
+  it('Z perm swaps adjacent pairs of edges, not opposite ones', () => {
+    for (const { from, to } of pllArrows(getCase('pll-z').caseState).edges) {
+      expect(Math.abs(from - to) % 2).toBe(1);
+    }
+  });
+
+  it('A perms and U perms are one cycle, running opposite ways in each pair', () => {
+    const cycle = (list) => list.map((a) => `${a.from}>${a.to}`).sort();
+    const reversed = (list) => list.map((a) => `${a.to}>${a.from}`).sort();
+    const aa = pllArrows(getCase('pll-aa').caseState).corners;
+    expect(aa).toHaveLength(3);
+    const ua = pllArrows(getCase('pll-ua').caseState).edges;
+    expect(ua).toHaveLength(3);
+    expect(cycle(pllArrows(getCase('pll-ub').caseState).edges)).toEqual(reversed(ua));
+  });
+
+  it('G perms keep a solved corner and edge next to each other, the block cubers look for', () => {
+    const CORNER_FACES = ['RF', 'FL', 'LB', 'BR'];
+    const EDGE_FACE = ['R', 'F', 'L', 'B'];
+    for (const name of ['ga', 'gb', 'gc', 'gd']) {
+      const { edges, corners } = pllArrows(getCase(`pll-${name}`).caseState);
+      const stillCorner = [0, 1, 2, 3].find((slot) => !corners.some((a) => a.from === slot));
+      const stillEdge = [0, 1, 2, 3].find((slot) => !edges.some((a) => a.from === slot));
+      expect(CORNER_FACES[stillCorner], name).toContain(EDGE_FACE[stillEdge]);
+    }
   });
 });
 

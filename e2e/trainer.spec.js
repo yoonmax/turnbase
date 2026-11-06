@@ -25,6 +25,15 @@ test('recognition: identify a case, see the result, record it', async ({ page })
   await expect(page.locator('[data-set=pll] td').nth(2)).toHaveText('50%');
 });
 
+test('practice diagrams draw no arrows, so they cannot give away the case', async ({ page }) => {
+  await page.goto('/trainer');
+  await page.getByTestId('trainset-pll').click();
+  await page.getByTestId('trainmode-recognition').click();
+  await page.getByTestId('trainer-start').click();
+  await expect(page.getByTestId('case-diagram')).toBeVisible();
+  await expect(page.locator('[data-testid=case-diagram] line')).toHaveCount(0);
+});
+
 test('recall: hidden until asked, then graded', async ({ page }) => {
   await page.goto('/trainer');
   await page.getByTestId('trainmode-recall').click();

@@ -197,6 +197,23 @@ export function pllPieces(state) {
   return best.text;
 }
 
+/**
+ * Where each misplaced last-layer piece has to go: the arrows on a PLL diagram. Slots are
+ * 0-3 in cubie order, UR UF UL UB for edges and URF UFL ULB UBR for corners.
+ */
+export function pllArrows(state) {
+  const cubies = toCubies(state);
+  if (!cubies) return { edges: [], corners: [] };
+  const read = (pieces) => {
+    const out = [];
+    for (let slot = 0; slot < 4; slot += 1) {
+      if (pieces[slot] !== slot && pieces[slot] < 4) out.push({ from: slot, to: pieces[slot] });
+    }
+    return out;
+  };
+  return { edges: read(cubies.ep), corners: read(cubies.cp) };
+}
+
 /** Sticker colors on the four sides, relative to a chosen U-turn: a PLL's identity. */
 function pllSides(state) {
   const { centers, colorAt } = colorReader(state);

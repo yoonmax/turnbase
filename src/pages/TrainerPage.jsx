@@ -39,7 +39,7 @@ function Algorithm({ entry }) {
 
 function CaseCard({ entry, auf, size = 168 }) {
   const state = useMemo(() => practiceState(entry, auf), [entry, auf]);
-  return <CaseDiagram entry={entry} state={state} size={size} />;
+  return <CaseDiagram entry={entry} state={state} size={size} arrows={false} />;
 }
 
 // ─── Recognition ─────────────────────────────────────

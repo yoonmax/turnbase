@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { FACE_ORDER, getCubeModel } from '../cube/CubeEngine.js';
-import { toCubies } from '../cube/CubeState.js';
+import { pllArrows } from './AlgorithmValidator.js';
 import { libraryColors } from './libraryColors.js';
 import { resolveScheme } from '../cube/CubeThemes.js';
 import { useApp } from '../app/store.js';
@@ -27,22 +27,15 @@ const CORNER_CENTERS = [
 ];
 
 function arrowsFor(state) {
-  const cubies = toCubies(state);
-  if (!cubies) return [];
-  const out = [];
-  for (let slot = 0; slot < 4; slot += 1) {
-    const piece = cubies.ep[slot];
-    if (piece !== slot && piece < 4) out.push({ from: EDGE_CENTERS[slot], to: EDGE_CENTERS[piece] });
-  }
-  for (let slot = 0; slot < 4; slot += 1) {
-    const piece = cubies.cp[slot];
-    if (piece !== slot && piece < 4) out.push({ from: CORNER_CENTERS[slot], to: CORNER_CENTERS[piece] });
-  }
-  return out;
+  const { edges, corners } = pllArrows(state);
+  return [
+    ...edges.map(({ from, to }) => ({ from: EDGE_CENTERS[from], to: EDGE_CENTERS[to] })),
+    ...corners.map(({ from, to }) => ({ from: CORNER_CENTERS[from], to: CORNER_CENTERS[to] })),
+  ];
 }
 
 /** Looking down on the last layer, with the top row of each side folded out. */
-function TopDiagram({ state, colors, mode, size }) {
+function TopDiagram({ state, colors, mode, size, showArrows = true }) {
   const cell = 10;
   const strip = 3;
   const gap = 0.9;
@@ -71,7 +64,7 @@ function TopDiagram({ state, colors, mode, size }) {
     parts.push(side(`l${i}`, at(L, 0, i), 0, offset, strip, length));
     parts.push(side(`r${i}`, at(R, 0, 2 - i), origin + 3 * cell + gap, offset, strip, length));
   }
-  const arrows = mode === 'pll' ? arrowsFor(state) : [];
+  const arrows = mode === 'pll' && showArrows ? arrowsFor(state) : [];
   return (
     <svg viewBox={`0 0 ${span} ${span}`} width={size} height={size} role="img" aria-label="Last layer from above" data-testid="case-diagram">
       {parts}
@@ -138,12 +131,14 @@ export function IsoDiagram({ state, colors, size, mask = true }) {
 }
 
 /** The right recognition diagram for a case, always derived from its state. */
-export function CaseDiagram({ entry, state = null, size = 76 }) {
+// Arrows only mean something at the angle the case is defined at, so practice views, which
+// turn the top layer to a random angle, leave them off. They would also give away the case.
+export function CaseDiagram({ entry, state = null, size = 76, arrows = true }) {
   const settings = useApp((s) => s.settings);
   const colors = useMemo(() => libraryColors(resolveScheme(settings)), [settings]);
   const shown = state ?? entry.caseState;
   if (entry.family === 'oll' || entry.family === '2lo') return <TopDiagram state={shown} colors={colors} mode="oll" size={size} />;
-  if (entry.family === 'pll' || entry.family === '2lp') return <TopDiagram state={shown} colors={colors} mode="pll" size={size} />;
+  if (entry.family === 'pll' || entry.family === '2lp') return <TopDiagram state={shown} colors={colors} mode="pll" size={size} showArrows={arrows} />;
   if (entry.family === 'f2l') return <IsoDiagram state={shown} colors={colors} size={size} />;
   return <CubeNet state={shown} width={size * 1.5} colorsOverride={colors} />;
 }
