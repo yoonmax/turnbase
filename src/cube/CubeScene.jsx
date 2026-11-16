@@ -96,8 +96,8 @@ function DepthFade({ color }) {
   useFrame(({ camera }) => {
     if (!scene.fog) return;
     const d = camera.position.length();
-    scene.fog.near = d - 0.6;
-    scene.fog.far = d + 3.1;
+    scene.fog.near = d - 0.2;
+    scene.fog.far = d + 6;
   });
   return null;
 }
@@ -113,12 +113,9 @@ function usePageColors(environment, dark) {
   return useMemo(() => {
     const css = getComputedStyle(document.documentElement);
     const paper = css.getPropertyValue('--paper').trim() || '#f3f5f8';
-    const ink = css.getPropertyValue('--ink').trim() || '#14171b';
     const background = environment === 'dark' ? '#17181a' : environment === 'light' ? '#f7f6f2' : paper;
-    const backgroundIsDark = environment === 'dark' || (environment !== 'light' && dark);
-    // A quiet outline: darker than the page in light themes, lighter in dark ones.
-    const rim = new THREE.Color(background).lerp(new THREE.Color(backgroundIsDark ? '#ffffff' : ink), backgroundIsDark ? 0.18 : 0.2);
-    return { background, rim: `#${rim.getHexString()}` };
+    // Tiles are outlined in black, like the plastic around a sticker.
+    return { background, rim: '#0b0c0e' };
   }, [environment, dark, version]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
@@ -192,7 +189,8 @@ export const CubeScene = forwardRef(function CubeScene({ controller, interactive
             }}
             style={{ position: 'absolute', inset: 0, touchAction: 'none' }}
           >
-            {seeThrough ? <DepthFade color={page.background} /> : <Lighting dark={dark} />}
+            {seeThrough ? <DepthFade color={page.background} /> : null}
+            <Lighting dark={dark} />
             <CubeRenderer
               controller={controller}
               colors={colors}

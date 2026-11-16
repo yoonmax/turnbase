@@ -28,7 +28,7 @@ function roundedSquareShape(size, radius) {
 function stickerGeometry(style, scale = 1) {
   if (style === 'seethrough') {
     // Flat tiles with wide gaps, so the far side of the cube shows between them.
-    const geometry = new THREE.ShapeGeometry(roundedSquareShape(0.7 * scale, 0.14 * scale), 6);
+    const geometry = new THREE.ShapeGeometry(roundedSquareShape(0.8 * scale, 0.15 * scale), 6);
     return geometry;
   }
   const stickerless = style === 'stickerless';
@@ -101,7 +101,7 @@ export function CubeRenderer({ controller, colors, style = 'seethrough', bodyCol
   const geometries = useMemo(
     () => ({
       sticker: stickerGeometry(style),
-      rim: stickerGeometry('seethrough', 1.055),
+      rim: stickerGeometry('seethrough', 1.07),
       body: new RoundedBoxGeometry(CUBIE, CUBIE, CUBIE, 3, 0.075),
     }),
     [style],
@@ -253,7 +253,8 @@ export function CubeRenderer({ controller, colors, style = 'seethrough', bodyCol
             <meshBasicMaterial color={rimColor} side={THREE.DoubleSide} />
           </instancedMesh>
           <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
-            <meshBasicMaterial side={THREE.DoubleSide} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+            {/* A light clearcoat sheen, kept subtle so the colors stay true. */}
+            <meshPhysicalMaterial side={THREE.DoubleSide} roughness={0.38} metalness={0} clearcoat={0.7} clearcoatRoughness={0.16} envMapIntensity={0.7} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
           </instancedMesh>
         </>
       ) : (
