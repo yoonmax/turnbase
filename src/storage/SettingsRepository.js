@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS = {
   scrambleFontScale: 1,
   showScrambleDiagram: true,
   // Cube controls
-  keymapProfile: 'direct',
+  keymapProfile: 'qwerty',
   // Cube appearance
   cubeStyle: 'seethrough', // 'seethrough' | 'stickered' | 'stickerless'
   cubeScheme: 'western',

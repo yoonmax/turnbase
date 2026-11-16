@@ -18,7 +18,7 @@ test('renders a solved cube whose pixels match the engine', async ({ page }) => 
 
 test('a key press turns the right face: logic, history, picture', async ({ page }) => {
   await openCube(page);
-  await page.keyboard.press('KeyR');
+  await page.keyboard.press('KeyI');
   await cubeIdle(page);
   expect(await facelets(page)).toBe('UUFUUFUUFRRRRRRRRRFFDFFDFFDDDBDDBDDBLLLLLLLLLUBBUBBUBB');
   await expect(page.getByTestId('move-history')).toHaveText('R');
@@ -28,18 +28,12 @@ test('a key press turns the right face: logic, history, picture', async ({ page 
 
 test('prime, double, slice, wide and rotation keys all work, and stay exact', async ({ page }) => {
   await openCube(page);
-  await typeMoves(page, "R' U2 F");
-  await page.keyboard.press('KeyM');
-  await page.keyboard.press('KeyT'); // r
-  await page.keyboard.press('KeyY'); // y
+  await typeMoves(page, "R' U2 F M Rw y E Dw z");
   await cubeIdle(page);
-  await expect(page.getByTestId('move-history')).toHaveText("R' U2 F M r y");
+  await expect(page.getByTestId('move-history')).toHaveText("R' U U F M Rw y E Dw z");
   await page.waitForTimeout(100);
   await expectPictureMatchesLogic(page);
-  await page.keyboard.press('Shift+KeyY');
-  await page.keyboard.press('Shift+KeyT');
-  await page.keyboard.press('Shift+KeyM');
-  await typeMoves(page, "F' U2 R");
+  await typeMoves(page, "z' Dw' E' y' Rw' M' F' U2 R");
   await cubeIdle(page);
   expect(await facelets(page)).toBe(SOLVED);
 });
@@ -47,11 +41,11 @@ test('prime, double, slice, wide and rotation keys all work, and stay exact', as
 test('no drift: hundreds of fast turns, and the picture still matches', async ({ page }) => {
   await openCube(page);
   const sequence = "R U F' L D2 B' R2 U' F L' D B2 ".repeat(12);
-  await typeMoves(page, sequence);
+  const presses = await typeMoves(page, sequence);
   await cubeIdle(page);
   await page.waitForTimeout(150);
   await expectPictureMatchesLogic(page);
-  await expect(page.getByTestId('history-count')).toHaveText('144');
+  await expect(page.getByTestId('history-count')).toHaveText(String(presses));
 });
 
 test('mid-turn frames differ from rest, then settle exactly', async ({ page }) => {
@@ -90,7 +84,7 @@ test('undo, redo, reset, solved state', async ({ page }) => {
 
 test('a whole-cube rotation keeps a solved cube solved', async ({ page }) => {
   await openCube(page);
-  await page.keyboard.press('KeyX');
+  await page.keyboard.press('KeyT');
   await cubeIdle(page);
   await expect(page.getByTestId('cube-solved')).toHaveText('Solved');
   expect(await facelets(page)).not.toBe(SOLVED);
@@ -162,7 +156,7 @@ test('key remapping: conflict detection, replace, persistence', async ({ page })
   await page.getByTestId('keymap-copy').click();
   await expect(page.getByTestId('keymap-profile')).toHaveValue(/keys_/);
   await page.locator('[data-move="R"] [data-testid="key-move"]').click();
-  await page.keyboard.press('KeyU');
+  await page.keyboard.press('KeyJ');
   await expect(page.getByTestId('keymap-message')).toContainText('already turns U');
   await page.getByTestId('keymap-replace').click();
   await page.locator('[data-move="U"] [data-testid="key-move"]').click();
@@ -170,20 +164,30 @@ test('key remapping: conflict detection, replace, persistence', async ({ page })
   await expect(page.getByTestId('keymap-message')).toContainText('kept for playback');
   await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
-  await page.keyboard.press('KeyU');
+  await page.keyboard.press('KeyJ');
   await cubeIdle(page);
   await expect(page.getByTestId('move-history')).toHaveText('R');
   await page.reload();
   await cubeReady(page);
-  await page.keyboard.press('KeyU');
+  await page.keyboard.press('KeyJ');
   await cubeIdle(page);
   await expect(page.getByTestId('move-history')).toHaveText('R');
 });
 
-test('the home-row profile turns the expected moves', async ({ page }) => {
+test('qwerty, dvorak and colemak presets: same keys, each layout labelled', async ({ page }) => {
   await openCube(page);
   await page.getByTestId('keys-open').click();
-  await page.getByTestId('keymap-profile').selectOption('speedcuber');
+  await expect(page.getByTestId('keymap-profile').locator('option')).toHaveText(['qwerty', 'dvorak', 'colemak']);
+  await expect(page.getByTestId('keymap-profile')).toHaveValue('qwerty');
+  const cell = (code) => page.locator(`[data-testid=key-cell][data-code=${code}]`);
+  await expect(page.getByTestId('key-cell')).toHaveCount(40);
+  await expect(cell('KeyI')).toHaveText('IR');
+  await page.getByTestId('keymap-profile').selectOption('dvorak');
+  await expect(cell('KeyI')).toHaveText('CR');
+  await expect(cell('KeyQ')).toHaveText("'z'");
+  await page.getByTestId('keymap-profile').selectOption('colemak');
+  await expect(cell('KeyI')).toHaveText('UR');
+  await expect(cell('Semicolon')).toHaveText('Oy');
   await page.keyboard.press('Escape');
   await page.keyboard.press('KeyI');
   await page.keyboard.press('KeyF');
@@ -279,14 +283,12 @@ test('virtual solve: scramble, solve by keyboard, auto-stop, separate session, r
   const inverse = scramble.trim().split(/\s+/).reverse().map((m) => (m.endsWith("'") ? m[0] : m.endsWith('2') ? m : `${m}'`)).join(' ');
 
   // A rotation first: no moves counted, and the clock does not start.
-  await page.keyboard.press('KeyY');
-  await page.keyboard.press('Shift+KeyY');
+  await typeMoves(page, "y y'");
   await expect(page.getByTestId('virtual-count')).toHaveText('0 moves');
   await expect(page.getByTestId('virtual-clock')).toHaveText('0.00');
 
-  await typeMoves(page, inverse);
+  const moveTotal = await typeMoves(page, inverse);
   await expect(page.getByTestId('virtual-result')).toBeVisible({ timeout: 20000 });
-  const moveTotal = inverse.split(' ').length;
   await expect(page.getByTestId('virtual-count')).toHaveText(`${moveTotal} moves`);
   await expect(page.getByTestId('replay-moves')).toHaveText(String(moveTotal));
   expect(Number(await page.getByTestId('replay-tps').textContent())).toBeGreaterThan(0);

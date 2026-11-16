@@ -1,17 +1,20 @@
 import { create } from 'zustand';
 import { kvGet, kvSet } from '../storage/Database.js';
-import { BUILT_IN_PROFILES, bindingProblem, validateProfile } from './CubeControls.js';
+import { BUILT_IN_PROFILES, DEFAULT_PROFILE_ID, bindingProblem, validateProfile } from './CubeControls.js';
 import { newId } from '../utils/format.js';
 
 export const useKeymaps = create((set, get) => ({
   loaded: false,
-  activeId: 'direct',
+  activeId: DEFAULT_PROFILE_ID,
   custom: {},
 
   async load() {
     if (get().loaded) return;
     const saved = await kvGet('keymaps', null);
-    set({ activeId: saved?.activeId ?? 'direct', custom: saved?.custom ?? {}, loaded: true });
+    const custom = saved?.custom ?? {};
+    // Profiles from before the qwerty, dvorak and colemak presets fall back to qwerty.
+    const known = saved?.activeId && (BUILT_IN_PROFILES[saved.activeId] || custom[saved.activeId]);
+    set({ activeId: known ? saved.activeId : DEFAULT_PROFILE_ID, custom, loaded: true });
   },
 
   async persist() {
@@ -25,7 +28,7 @@ export const useKeymaps = create((set, get) => ({
 
   active() {
     const { activeId } = get();
-    return get().profiles()[activeId] ?? BUILT_IN_PROFILES.direct;
+    return get().profiles()[activeId] ?? BUILT_IN_PROFILES[DEFAULT_PROFILE_ID];
   },
 
   async setActive(id) {
@@ -37,7 +40,7 @@ export const useKeymaps = create((set, get) => ({
   async duplicate(fromId, name) {
     const from = get().profiles()[fromId];
     const id = newId('keys');
-    const profile = { id, name, description: `Based on ${from.name}.`, builtIn: false, bindings: { ...from.bindings } };
+    const profile = { id, name, layout: from.layout ?? DEFAULT_PROFILE_ID, description: `Based on ${from.name}.`, builtIn: false, bindings: { ...from.bindings } };
     set((state) => ({ custom: { ...state.custom, [id]: profile }, activeId: id }));
     await get().persist();
     return profile;
@@ -69,7 +72,7 @@ export const useKeymaps = create((set, get) => ({
     set((state) => {
       const custom = { ...state.custom };
       delete custom[profileId];
-      return { custom, activeId: state.activeId === profileId ? 'direct' : state.activeId };
+      return { custom, activeId: state.activeId === profileId ? DEFAULT_PROFILE_ID : state.activeId };
     });
     await get().persist();
   },
@@ -85,7 +88,7 @@ export const useKeymaps = create((set, get) => ({
 
   /** Back to the shipped profiles. Custom profiles are removed. */
   async resetAll() {
-    set({ custom: {}, activeId: 'direct' });
+    set({ custom: {}, activeId: DEFAULT_PROFILE_ID });
     await get().persist();
   },
 }));

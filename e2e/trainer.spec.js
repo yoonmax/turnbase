@@ -80,12 +80,11 @@ test('execution: solving the case on the 3D cube is detected and recorded', asyn
   await cubeReady(page);
   await expect(page.getByTestId('execution-status')).toContainText('Solve this case');
   await page.getByTestId('execution-hint').click();
-  // The first PLL case is Aa. Use a moves-only solution in Direct-profile keys.
+  // The first PLL case is Aa, typed on the qwerty preset.
   await expect(page.getByTestId('trainer-algorithm')).toHaveText("x R' U R' D2 R U' R' D2 R2 x'");
-  await typeMoves(page, "x R' U R' D2 R U' R' D2 R2");
-  await page.keyboard.press('Shift+KeyX');
+  await typeMoves(page, "x R' U R' D2 R U' R' D2 R2 x'");
   await expect(page.getByTestId('execution-status')).toContainText('Case solved', { timeout: 10000 });
-  await expect(page.getByTestId('execution-count')).toHaveText('9 moves');
+  await expect(page.getByTestId('execution-count')).toHaveText('12 moves');
   await expect(page.getByTestId('practice-tally')).toHaveText('1 of 1 right');
   await page.getByTestId('execution-next').click();
   await expect(page.getByTestId('execution-status')).toContainText('Solve this case');

@@ -4,7 +4,7 @@ import { SequencePlayer } from '../../src/cube/SequencePlayer.js';
 import { ManualCube } from '../../src/cube/ManualCube.js';
 import { applyAlg, isSolved, solvedState, statesEqual } from '../../src/cube/CubeEngine.js';
 import { parseMoves } from '../../src/cube/CubeNotationParser.js';
-import { BUILT_IN_PROFILES, bindingProblem, bindingsByMove, comboFromEvent, moveForEvent, moveFromDrag, validateProfile } from '../../src/cube/CubeControls.js';
+import { BUILT_IN_PROFILES, KEYBOARD_ROWS, bindingProblem, bindingsByMove, comboFromEvent, comboLabel, keyLabel, moveForEvent, moveFromDrag, validateProfile } from '../../src/cube/CubeControls.js';
 import { getCubeModel } from '../../src/cube/CubeEngine.js';
 import { moveGeometry } from '../../src/cube/CubeMoves.js';
 
@@ -273,24 +273,40 @@ describe('manual cube', () => {
 
 describe('key profiles', () => {
   const event = (code, extra = {}) => ({ code, shiftKey: false, altKey: false, metaKey: false, ctrlKey: false, ...extra });
+  const move = (code, profile = BUILT_IN_PROFILES.qwerty) => moveForEvent(profile, event(code))?.text ?? null;
 
-  it('direct profile: key, Shift for prime, Alt for double', () => {
-    const p = BUILT_IN_PROFILES.direct;
-    expect(moveForEvent(p, event('KeyR')).text).toBe('R');
-    expect(moveForEvent(p, event('KeyR', { shiftKey: true })).text).toBe("R'");
-    expect(moveForEvent(p, event('KeyR', { altKey: true })).text).toBe('R2');
-    expect(moveForEvent(p, event('KeyM')).text).toBe('M');
-    expect(moveForEvent(p, event('KeyT')).text).toBe('r');
-    expect(moveForEvent(p, event('KeyX')).text).toBe('x');
+  it('ships exactly qwerty, dvorak and colemak', () => {
+    expect(Object.keys(BUILT_IN_PROFILES)).toEqual(['qwerty', 'dvorak', 'colemak']);
   });
 
-  it('home-row profile: single keys for each direction', () => {
-    const p = BUILT_IN_PROFILES.speedcuber;
-    expect(moveForEvent(p, event('KeyI')).text).toBe('R');
-    expect(moveForEvent(p, event('KeyK')).text).toBe("R'");
-    expect(moveForEvent(p, event('KeyJ')).text).toBe('U');
-    expect(moveForEvent(p, event('KeyF')).text).toBe("U'");
-    expect(moveForEvent(p, event('Semicolon')).text).toBe('y');
+  it('matches the standard virtual-cube key map, key for key', () => {
+    // Each row as printed on a qwerty keyboard, and the move under each key.
+    const rows = [
+      ['1234567890', ["S'", 'E', null, null, 'M', 'M', null, null, "E'", 'S']],
+      ['QWERTYUIOP', ["z'", 'B', "L'", "Lw'", 'x', 'x', 'Rw', 'R', "B'", 'z']],
+      ['ASDFGHJKL;', ["y'", 'D', 'L', "U'", "F'", 'F', 'U', "R'", "D'", 'y']],
+      ['ZXCVBNM,./', ['Dw', "M'", "Uw'", 'Lw', "x'", "x'", "Rw'", 'Uw', "M'", "Dw'"]],
+    ];
+    rows.forEach((row, r) => {
+      KEYBOARD_ROWS[r].forEach((code, c) => {
+        expect(keyLabel(code, 'qwerty')).toBe(row[0][c]);
+        expect(move(code), `${row[0][c]}`).toBe(row[1][c]);
+      });
+    });
+  });
+
+  it('dvorak and colemak keep the same moves on the same keys, with their own letters', () => {
+    for (const id of ['dvorak', 'colemak']) {
+      for (const codes of KEYBOARD_ROWS) for (const code of codes) expect(move(code, BUILT_IN_PROFILES[id])).toBe(move(code));
+    }
+    // The dvorak chart: ' turns z', C turns R, H turns U. Colemak: U turns R, N turns U.
+    expect(keyLabel('KeyQ', 'dvorak')).toBe("'");
+    expect(keyLabel('KeyI', 'dvorak')).toBe('C');
+    expect(keyLabel('KeyJ', 'dvorak')).toBe('H');
+    expect(keyLabel('KeyI', 'colemak')).toBe('U');
+    expect(keyLabel('KeyJ', 'colemak')).toBe('N');
+    expect(keyLabel('Semicolon', 'colemak')).toBe('O');
+    expect(comboLabel('KeyK', 'dvorak')).toBe('T');
   });
 
   it('every built-in binding is a single valid move', () => {
@@ -302,24 +318,26 @@ describe('key profiles', () => {
   });
 
   it('browser shortcuts stay with the browser', () => {
-    const p = BUILT_IN_PROFILES.direct;
-    expect(moveForEvent(p, event('KeyR', { metaKey: true }))).toBe(null);
-    expect(moveForEvent(p, event('KeyR', { ctrlKey: true }))).toBe(null);
+    const p = BUILT_IN_PROFILES.qwerty;
+    expect(moveForEvent(p, event('KeyI', { metaKey: true }))).toBe(null);
+    expect(moveForEvent(p, event('KeyI', { ctrlKey: true }))).toBe(null);
     expect(moveForEvent(p, event('Space'))).toBe(null);
+    expect(moveForEvent(p, event('Digit3'))).toBe(null);
   });
 
   it('reports conflicts and reserved keys', () => {
-    const p = BUILT_IN_PROFILES.direct;
-    expect(bindingProblem(p, 'KeyR', 'U')).toMatchObject({ kind: 'conflict', with: 'R' });
-    expect(bindingProblem(p, 'KeyR', 'R')).toBe(null);
-    expect(bindingProblem(p, 'KeyQ', 'R')).toBe(null);
+    const p = BUILT_IN_PROFILES.qwerty;
+    expect(bindingProblem(p, 'KeyI', 'U')).toMatchObject({ kind: 'conflict', with: 'R' });
+    expect(bindingProblem(p, 'KeyI', 'R')).toBe(null);
+    expect(bindingProblem(p, 'Digit3', 'R')).toBe(null);
     expect(bindingProblem(p, 'Space', 'R').kind).toBe('reserved');
     expect(bindingProblem(p, 'Shift+ArrowLeft', 'R').kind).toBe('reserved');
   });
 
   it('lists all keys for a move', () => {
-    const map = bindingsByMove(BUILT_IN_PROFILES.speedcuber);
+    const map = bindingsByMove(BUILT_IN_PROFILES.qwerty);
     expect(map.get('M').sort()).toEqual(['Digit5', 'Digit6']);
+    expect(map.get("x'").sort()).toEqual(['KeyB', 'KeyN']);
   });
 
   it('builds combos in a stable order', () => {

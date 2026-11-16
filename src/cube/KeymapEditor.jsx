@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Download, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useKeymaps } from './keymapStore.js';
-import { bindingsByMove, comboFromEvent, comboLabel } from './CubeControls.js';
+import { KEYBOARD_ROWS, bindingsByMove, comboFromEvent, comboLabel, keyLabel } from './CubeControls.js';
 import { Modal } from '../components/Modal.jsx';
 import { useApp } from '../app/store.js';
 import { downloadText, pickFile, slug } from '../utils/download.js';
@@ -9,11 +9,38 @@ import { downloadText, pickFile, slug } from '../utils/download.js';
 const MOVE_GROUPS = [
   { name: 'Faces', moves: ['R', 'U', 'F', 'L', 'D', 'B'] },
   { name: 'Slices', moves: ['M', 'E', 'S'] },
-  { name: 'Wide', moves: ['r', 'u', 'f', 'l', 'd', 'b'] },
+  { name: 'Wide', moves: ['Rw', 'Uw', 'Fw', 'Lw', 'Dw', 'Bw'] },
   { name: 'Whole cube', moves: ['x', 'y', 'z'] },
 ];
 
 const withVariants = (move) => [move, `${move}'`, `${move}2`];
+
+/** The profile drawn as a keyboard: each key shows its letter and the move it makes. */
+function KeyboardGrid({ profile }) {
+  return (
+    <div className="grid grid-cols-10 gap-1" data-testid="key-grid">
+      {KEYBOARD_ROWS.flatMap((codes) =>
+        codes.map((code) => {
+          const move = profile.bindings[code];
+          return (
+            <div
+              key={code}
+              aria-label={move ? `${keyLabel(code, profile.layout)} turns ${move}` : `${keyLabel(code, profile.layout)} has no move`}
+              data-testid="key-cell"
+              data-code={code}
+              className={`flex flex-col justify-between h-[3.25rem] px-1.5 py-1 rounded-xl ${move ? 'bg-[var(--fill)]' : 'border border-dashed border-rule'}`}
+            >
+              <span className="text-[0.6875rem] text-graphite leading-none">{keyLabel(code, profile.layout)}</span>
+              <span className="notation text-[0.875rem] font-semibold self-end leading-none" data-testid="key-move-label">
+                {move ?? ''}
+              </span>
+            </div>
+          );
+        }),
+      )}
+    </div>
+  );
+}
 
 /** Choosing, editing, importing and exporting key profiles. */
 export function KeymapEditor() {
@@ -139,7 +166,9 @@ export function KeymapEditor() {
           ) : null}
         </div>
       ) : null}
-      <div className="grid gap-3">
+      <KeyboardGrid profile={profile} />
+      {editable ? null : <p className="m-0 text-[0.75rem] text-graphite">To change a key, make an editable copy.</p>}
+      {editable ? <div className="grid gap-3">
         {MOVE_GROUPS.map((group) => (
           <section key={group.name}>
             <h3 className="m-0 mb-1 text-[0.75rem] font-normal text-graphite">{group.name}</h3>
@@ -164,9 +193,9 @@ export function KeymapEditor() {
                     ) : keys.length ? (
                       keys.map((combo) => (
                         <span key={combo} className="inline-flex items-center gap-0.5 px-1.5 rounded border border-rule bg-raised whitespace-nowrap">
-                          {comboLabel(combo)}
+                          {comboLabel(combo, profile.layout)}
                           {editable ? (
-                            <button type="button" className="bg-transparent border-none p-0 text-faint" aria-label={`Remove ${comboLabel(combo)}`} onClick={() => store.unbind(profile.id, combo)}>
+                            <button type="button" className="bg-transparent border-none p-0 text-faint" aria-label={`Remove ${comboLabel(combo, profile.layout)}`} onClick={() => store.unbind(profile.id, combo)}>
                               <X size={10} />
                             </button>
                           ) : null}
@@ -181,7 +210,7 @@ export function KeymapEditor() {
             </div>
           </section>
         ))}
-      </div>
+      </div> : null}
     </div>
   );
 }

@@ -17,77 +17,71 @@ export function comboFromEvent(event) {
   return parts.join('+');
 }
 
-export function comboLabel(combo) {
+// The physical keyboard, by position. Moves are bound to positions, so a preset works the
+// same whatever layout the computer is set to; the layout only changes the printed letters.
+export const KEYBOARD_ROWS = [
+  ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9', 'Digit0'],
+  ['KeyQ', 'KeyW', 'KeyE', 'KeyR', 'KeyT', 'KeyY', 'KeyU', 'KeyI', 'KeyO', 'KeyP'],
+  ['KeyA', 'KeyS', 'KeyD', 'KeyF', 'KeyG', 'KeyH', 'KeyJ', 'KeyK', 'KeyL', 'Semicolon'],
+  ['KeyZ', 'KeyX', 'KeyC', 'KeyV', 'KeyB', 'KeyN', 'KeyM', 'Comma', 'Period', 'Slash'],
+];
+
+// What each layout prints on those positions, row by row.
+export const LAYOUT_LABELS = {
+  qwerty: ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL;', 'ZXCVBNM,./'],
+  dvorak: ['1234567890', "',.PYFGCRL", 'AOEUIDHTNS', ';QJKXBMWVZ'],
+  colemak: ['1234567890', 'QWFPGJLUY;', 'ARSTDHNEIO', 'ZXCVBKM,./'],
+};
+
+const LABEL_BY_CODE = Object.fromEntries(
+  Object.entries(LAYOUT_LABELS).map(([layout, rows]) => [
+    layout,
+    Object.fromEntries(KEYBOARD_ROWS.flatMap((codes, r) => codes.map((code, c) => [code, rows[r][c]]))),
+  ]),
+);
+
+const OTHER_KEYS = { Quote: "'", BracketLeft: '[', BracketRight: ']', Minus: '-', Equal: '=', Backquote: '`', Backslash: '\\' };
+
+export function keyLabel(code, layout = 'qwerty') {
+  return LABEL_BY_CODE[layout]?.[code] ?? LABEL_BY_CODE.qwerty[code] ?? OTHER_KEYS[code] ?? code.replace(/^Key|^Digit/, '');
+}
+
+export function comboLabel(combo, layout = 'qwerty') {
   return combo
     .split('+')
-    .map((part) => {
-      if (part.startsWith('Key')) return part.slice(3);
-      if (part.startsWith('Digit')) return part.slice(5);
-      return { Semicolon: ';', Comma: ',', Period: '.', Slash: '/', Quote: "'", BracketLeft: '[', BracketRight: ']', Minus: '-', Equal: '=', Backquote: '`', Backslash: '\\' }[part] ?? part;
-    })
+    .map((part) => (part === 'Alt' || part === 'Shift' ? part : keyLabel(part, layout)))
     .join(' + ');
 }
 
-function directBindings() {
-  const out = {};
-  const add = (key, move) => {
-    out[key] = move;
-    out[`Shift+${key}`] = `${move}'`;
-    out[`Alt+${key}`] = `${move}2`;
-  };
-  for (const face of ['R', 'U', 'F', 'L', 'D', 'B']) add(`Key${face}`, face);
-  add('KeyM', 'M');
-  add('KeyE', 'E');
-  add('KeyS', 'S');
-  add('KeyX', 'x');
-  add('KeyY', 'y');
-  add('KeyZ', 'z');
-  add('KeyT', 'r');
-  add('KeyK', 'l');
-  add('KeyI', 'u');
-  add('KeyH', 'd');
-  add('KeyG', 'f');
-  add('KeyV', 'b');
-  return out;
-}
+// The standard virtual-cube layout: both hands on the home row, one key per move. Row by
+// row, matching KEYBOARD_ROWS. Empty strings are keys with no move.
+const STANDARD_GRID = [
+  ["S'", 'E', '', '', 'M', 'M', '', '', "E'", 'S'],
+  ["z'", 'B', "L'", "Lw'", 'x', 'x', 'Rw', 'R', "B'", 'z'],
+  ["y'", 'D', 'L', "U'", "F'", 'F', 'U', "R'", "D'", 'y'],
+  ['Dw', "M'", "Uw'", 'Lw', "x'", "x'", "Rw'", 'Uw', "M'", "Dw'"],
+];
 
-// A home-row layout in the style long used by virtual-cube solvers: index fingers
-// turn R and L, and U is on the middle of each hand.
-const SPEEDCUBER_BINDINGS = {
-  KeyI: 'R', KeyK: "R'",
-  KeyD: 'L', KeyE: "L'",
-  KeyJ: 'U', KeyF: "U'",
-  KeyH: 'F', KeyG: "F'",
-  KeyS: 'D', KeyL: "D'",
-  KeyW: 'B', KeyO: "B'",
-  KeyU: 'r', KeyM: "r'",
-  KeyV: 'l', KeyR: "l'",
-  KeyX: "M'", Period: "M'",
-  Digit5: 'M', Digit6: 'M',
-  KeyT: 'x', KeyY: 'x',
-  KeyB: "x'", KeyN: "x'",
-  Semicolon: 'y', KeyA: "y'",
-  KeyP: 'z', KeyQ: "z'",
-  Comma: 'u', KeyC: "u'",
-  KeyZ: 'd', Slash: "d'",
-};
+const STANDARD_BINDINGS = Object.fromEntries(
+  KEYBOARD_ROWS.flatMap((codes, r) => codes.map((code, c) => [code, STANDARD_GRID[r][c]])).filter(([, move]) => move),
+);
+
+const preset = (id) => ({
+  id,
+  name: id,
+  layout: id,
+  description: `For a ${id} keyboard. Both hands rest on the home row, every key is one move, and pressing a key twice makes a double turn.`,
+  builtIn: true,
+  bindings: STANDARD_BINDINGS,
+});
 
 export const BUILT_IN_PROFILES = {
-  direct: {
-    id: 'direct',
-    name: 'Direct',
-    description: 'The key is the move: R turns R. Hold Shift for prime, Alt for a double turn.',
-    builtIn: true,
-    bindings: directBindings(),
-  },
-  speedcuber: {
-    id: 'speedcuber',
-    name: 'Home row',
-    description: 'Both hands rest on the home row, for fast solving. Every key is one move.',
-    builtIn: true,
-    bindings: SPEEDCUBER_BINDINGS,
-  },
+  qwerty: preset('qwerty'),
+  dvorak: preset('dvorak'),
+  colemak: preset('colemak'),
 };
+
+export const DEFAULT_PROFILE_ID = 'qwerty';
 
 /** The move a key event means under a profile, or null. */
 export function moveForEvent(profile, event) {

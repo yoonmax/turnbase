@@ -39,14 +39,35 @@ export const cubeReady = async (page) => {
 export const facelets = (page) => page.evaluate(() => window.__turnbaseCube.facelets());
 export const cubeIdle = (page) => page.waitForFunction(() => !window.__turnbaseCube.controller.animating);
 
-/** Presses keys in the Direct profile for a notation string, such as "R U' F2". */
+// The qwerty preset: one physical key per move.
+const PRESET_KEYS = {
+  R: 'KeyI', "R'": 'KeyK', U: 'KeyJ', "U'": 'KeyF', F: 'KeyH', "F'": 'KeyG',
+  L: 'KeyD', "L'": 'KeyE', D: 'KeyS', "D'": 'KeyL', B: 'KeyW', "B'": 'KeyO',
+  x: 'KeyT', "x'": 'KeyB', y: 'Semicolon', "y'": 'KeyA', z: 'KeyP', "z'": 'KeyQ',
+  M: 'Digit5', "M'": 'KeyX', E: 'Digit2', "E'": 'Digit9', S: 'Digit0', "S'": 'Digit1',
+  Rw: 'KeyU', "Rw'": 'KeyM', r: 'KeyU', "r'": 'KeyM', Lw: 'KeyV', "Lw'": 'KeyR',
+  Uw: 'Comma', "Uw'": 'KeyC', Dw: 'KeyZ', "Dw'": 'Slash',
+};
+
+/**
+ * Types a notation string on the qwerty preset, such as "R U' F2". A double turn is the
+ * same key twice, as on a real keyboard. Returns how many keys were pressed.
+ */
 export async function typeMoves(page, notation) {
+  let presses = 0;
   for (const token of notation.trim().split(/\s+/)) {
-    const key = `Key${token[0].toUpperCase()}`;
-    if (token.endsWith("'")) await page.keyboard.press(`Shift+${key}`);
-    else if (token.endsWith('2')) await page.keyboard.press(`Alt+${key}`);
-    else await page.keyboard.press(key);
+    const double = token.endsWith('2');
+    const base = double ? token.slice(0, -1) : token;
+    const key = PRESET_KEYS[base];
+    if (!key) throw new Error(`No key for ${token}`);
+    await page.keyboard.press(key);
+    presses += 1;
+    if (double) {
+      await page.keyboard.press(key);
+      presses += 1;
+    }
   }
+  return presses;
 }
 
 // Named by hue, because lighting changes brightness but not which color it is.
