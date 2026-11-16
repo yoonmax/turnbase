@@ -184,7 +184,7 @@ export default function SettingsPage() {
           </Group>
 
           <Group title="Cube appearance">
-            <Choice id="cubeStyle" label="Style" value={settings.cubeStyle} options={[['stickered', 'Stickered'], ['stickerless', 'Stickerless']]} onChange={set('cubeStyle')} />
+            <Choice id="cubeStyle" label="Style" hint="See-through shows every side at once, through gaps between the tiles." value={settings.cubeStyle} options={[['seethrough', 'See-through'], ['stickered', 'Stickered'], ['stickerless', 'Stickerless']]} onChange={set('cubeStyle')} />
             <Setting label="Color scheme" htmlFor="scheme">
               <select id="scheme" className="field" value={settings.cubeScheme} data-testid="setting-cubeScheme" onChange={(e) => update({ cubeScheme: e.target.value, customColors: e.target.value === 'custom' ? settings.customColors ?? colors : settings.customColors })}>
                 {Object.entries(CUBE_SCHEMES).map(([id, scheme]) => (

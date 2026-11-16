@@ -191,6 +191,33 @@ test('each PLL tile draws the right number of arrows, including the ones that we
   }
 });
 
+test('each case shows how to set it up from solved, and the setup really reaches it', async ({ page }) => {
+  for (const id of ['pll-t', 'pll-aa', 'oll-2', 'f2l-37']) {
+    await page.goto(`/algorithms/${id}?debug`);
+    await cubeReady(page);
+    const start = await page.evaluate(() => window.__turnbaseCube.facelets());
+    await page.getByTestId('setup-toggle').click();
+    await expect(page.getByTestId('setup-moves')).toBeVisible();
+    await expect(page.getByTestId('setup-section')).toContainText('Hold a solved cube with yellow on top and green in front');
+    expect(await page.getByTestId('setup-moves').textContent()).not.toMatch(/\b[xyz]['2]?\b.*then turn|^[xyz]/);
+    await page.getByTestId('setup-watch').click();
+    await page.getByTestId('speed-4').click();
+    await expect(page.getByTestId('setup-done')).toBeVisible({ timeout: 20000 });
+    await cubeIdle(page);
+    expect(await page.evaluate(() => window.__turnbaseCube.facelets())).toBe(start);
+    await page.getByTestId('setup-back').click();
+    await page.getByTestId('player-end').click();
+    await expect(page.getByTestId('detail-solved')).toBeVisible();
+  }
+});
+
+test('the setup can be copied', async ({ page }) => {
+  await page.goto('/algorithms/pll-t');
+  await page.getByTestId('setup-toggle').click();
+  await page.getByTestId('setup-copy').click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("F R U' R' U R U R2 F' R U R U' R'");
+});
+
 test('unavailable sets are named as unavailable', async ({ page }) => {
   await page.goto('/algorithms');
   await expect(page.getByTestId('case-grid')).toContainText('Not in this library: COLL, CMLL, Winter Variation, ZBLL');

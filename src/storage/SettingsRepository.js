@@ -1,6 +1,6 @@
 import { kvGet, kvSet } from './Database.js';
 
-export const LOOK_VERSION = 2;
+export const LOOK_VERSION = 3;
 
 export const DEFAULT_SETTINGS = {
   lookVersion: LOOK_VERSION,
@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS = {
   // Cube controls
   keymapProfile: 'direct',
   // Cube appearance
-  cubeStyle: 'stickered', // 'stickered' | 'stickerless'
+  cubeStyle: 'seethrough', // 'seethrough' | 'stickered' | 'stickerless'
   cubeScheme: 'western',
   customColors: null,
   cubeEnvironment: 'auto', // 'auto' | 'light' | 'dark'
@@ -59,8 +59,12 @@ export const DEFAULT_SETTINGS = {
 export function migrateSettings(saved) {
   if ((saved.lookVersion ?? 1) >= LOOK_VERSION) return saved;
   const next = { ...saved, lookVersion: LOOK_VERSION };
-  if (next.theme === 'system') next.theme = 'light';
-  if (next.bloom === undefined || next.bloom === 0.7) next.bloom = DEFAULT_SETTINGS.bloom;
+  if ((saved.lookVersion ?? 1) < 2) {
+    if (next.theme === 'system') next.theme = 'light';
+    if (next.bloom === undefined || next.bloom === 0.7) next.bloom = DEFAULT_SETTINGS.bloom;
+  }
+  // Version 3 made the see-through cube the default, replacing the old stickered default.
+  if (next.cubeStyle === undefined || next.cubeStyle === 'stickered') next.cubeStyle = 'seethrough';
   return next;
 }
 

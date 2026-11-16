@@ -25,7 +25,12 @@ function roundedSquareShape(size, radius) {
   return shape;
 }
 
-function stickerGeometry(style) {
+function stickerGeometry(style, scale = 1) {
+  if (style === 'seethrough') {
+    // Flat tiles with wide gaps, so the far side of the cube shows between them.
+    const geometry = new THREE.ShapeGeometry(roundedSquareShape(0.7 * scale, 0.14 * scale), 6);
+    return geometry;
+  }
   const stickerless = style === 'stickerless';
   const size = stickerless ? 0.93 : 0.82;
   const radius = stickerless ? 0.15 : 0.11;
@@ -46,7 +51,8 @@ function stickerGeometry(style) {
  * from the exact state, and the only motion is the current layer's rotation, so
  * the picture can never disagree with the logic once a turn ends.
  */
-export function CubeRenderer({ controller, colors, style = 'stickered', bodyColor = '#17181b', interactive = false, onMove = null, orbit = null }) {
+export function CubeRenderer({ controller, colors, style = 'seethrough', bodyColor = '#17181b', rimColor = '#9aa0a8', interactive = false, onMove = null, orbit = null }) {
+  const seeThrough = style === 'seethrough';
   const { n } = controller;
   const model = useMemo(() => getCubeModel(n), [n]);
   const invalidate = useThree((s) => s.invalidate);
@@ -54,6 +60,7 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
   const size = useThree((s) => s.size);
   const stickerMesh = useRef(null);
   const bodyMesh = useRef(null);
+  const rimMesh = useRef(null);
   const drag = useRef(null);
   const renderCount = useRef(0);
   const lastDrawn = useRef({ visual: null, colors: null, rotating: false });
@@ -77,7 +84,7 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
     const forward = new THREE.Vector3(0, 0, 1);
     const stickerMatrices = model.stickers.map((sticker) => {
       const normal = new THREE.Vector3(...sticker.normal);
-      object.position.set(...sticker.pos.map((c) => c / 2)).addScaledVector(normal, SHELL_DEPTH);
+      object.position.set(...sticker.pos.map((c) => c / 2)).addScaledVector(normal, seeThrough ? 0.5 : SHELL_DEPTH);
       object.quaternion.setFromUnitVectors(forward, normal);
       object.updateMatrix();
       return object.matrix.clone();
@@ -89,11 +96,12 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
       return object.matrix.clone();
     });
     return { stickerMatrices, bodyMatrices };
-  }, [model, bodies]);
+  }, [model, bodies, seeThrough]);
 
   const geometries = useMemo(
     () => ({
       sticker: stickerGeometry(style),
+      rim: stickerGeometry('seethrough', 1.055),
       body: new RoundedBoxGeometry(CUBIE, CUBIE, CUBIE, 3, 0.075),
     }),
     [style],
@@ -102,6 +110,7 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
   useEffect(
     () => () => {
       geometries.sticker.dispose();
+      geometries.rim.dispose();
       geometries.body.dispose();
     },
     [geometries],
@@ -112,7 +121,7 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
   useLayoutEffect(() => {
     lastDrawn.current = { visual: null, colors: null, rotating: true };
     invalidate();
-  }, [geometries, palette, invalidate]);
+  }, [geometries, palette, bases, invalidate]);
 
   useEffect(() => controller.subscribe(() => invalidate()), [controller, invalidate]);
 
@@ -146,7 +155,8 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
   useFrame(() => {
     const stickers = stickerMesh.current;
     const pieces = bodyMesh.current;
-    if (!stickers || !pieces) return;
+    if (!stickers || (!pieces && !seeThrough)) return;
+    const rims = rimMesh.current;
     renderCount.current += 1;
     const pose = controller.update();
     const last = lastDrawn.current;
@@ -168,11 +178,13 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
         if (rotating && coords.has(sticker.pos[pose.axis])) {
           composed.multiplyMatrices(rotation, bases.stickerMatrices[i]);
           stickers.setMatrixAt(i, composed);
+          rims?.setMatrixAt(i, composed);
         } else {
           stickers.setMatrixAt(i, bases.stickerMatrices[i]);
+          rims?.setMatrixAt(i, bases.stickerMatrices[i]);
         }
       });
-      bodies.forEach((pos, i) => {
+      if (pieces) bodies.forEach((pos, i) => {
         if (rotating && coords.has(pos[pose.axis] * 2)) {
           composed.multiplyMatrices(rotation, bases.bodyMatrices[i]);
           pieces.setMatrixAt(i, composed);
@@ -181,7 +193,8 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
         }
       });
       stickers.instanceMatrix.needsUpdate = true;
-      pieces.instanceMatrix.needsUpdate = true;
+      if (pieces) pieces.instanceMatrix.needsUpdate = true;
+      if (rims) rims.instanceMatrix.needsUpdate = true;
       last.rotating = rotating;
     }
 
@@ -233,12 +246,26 @@ export function CubeRenderer({ controller, colors, style = 'stickered', bodyColo
 
   return (
     <group>
-      <instancedMesh ref={bodyMesh} args={[geometries.body, undefined, bodies.length]} frustumCulled={false} onPointerDown={interactive ? (e) => e.stopPropagation() : undefined}>
-        <meshStandardMaterial color={bodyColor} roughness={0.62} metalness={0.05} />
-      </instancedMesh>
-      <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
-        <meshPhysicalMaterial roughness={style === 'stickerless' ? 0.5 : 0.42} metalness={0} clearcoat={style === 'stickerless' ? 0.08 : 0.22} clearcoatRoughness={0.5} envMapIntensity={0.55} />
-      </instancedMesh>
+      {seeThrough ? (
+        <>
+          {/* A soft outline behind each tile, so light colors still read against the page. */}
+          <instancedMesh ref={rimMesh} args={[geometries.rim, undefined, model.count]} frustumCulled={false}>
+            <meshBasicMaterial color={rimColor} side={THREE.DoubleSide} />
+          </instancedMesh>
+          <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
+            <meshBasicMaterial side={THREE.DoubleSide} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+          </instancedMesh>
+        </>
+      ) : (
+        <>
+          <instancedMesh ref={bodyMesh} args={[geometries.body, undefined, bodies.length]} frustumCulled={false} onPointerDown={interactive ? (e) => e.stopPropagation() : undefined}>
+            <meshStandardMaterial color={bodyColor} roughness={0.62} metalness={0.05} />
+          </instancedMesh>
+          <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
+            <meshPhysicalMaterial roughness={style === 'stickerless' ? 0.5 : 0.42} metalness={0} clearcoat={style === 'stickerless' ? 0.08 : 0.22} clearcoatRoughness={0.5} envMapIntensity={0.55} />
+          </instancedMesh>
+        </>
+      )}
     </group>
   );
 }

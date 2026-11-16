@@ -14,9 +14,9 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Statistics.** Mean of 3 and average of 5 by WCA rules, rolling ao12, ao50, ao100, ao1000 and any window you add. Charts for trends, spread, daily volume, personal bests and consistency, session comparison, CSV and JSON export.
 
-**3D cube.** Turn with the keyboard or by dragging a sticker. Face, slice, wide and whole-cube moves, undo and redo, remappable key profiles, stickered and stickerless styles.
+**3D cube.** Turn with the keyboard or by dragging a sticker. Face, slice, wide and whole-cube moves, undo and redo, and remappable key profiles. The default see-through style shows every side at once: tiles float with gaps between them and the far side fades back, so you can read the whole cube without turning it. Stickered and stickerless styles are in Settings.
 
-**Algorithms.** All 21 PLL, 57 OLL and 41 F2L cases, plus 2-look and beginner sets. Each case opens on the 3D cube in its true starting state, and plays, steps, reverses and scrubs one exact state at a time.
+**Algorithms.** All 21 PLL, 57 OLL and 41 F2L cases, plus 2-look and beginner sets. Each case opens on the 3D cube in its true starting state, and plays, steps, reverses and scrubs one exact state at a time. Each case also shows how to set it up on a real cube from solved, with no whole-cube rotations, and can play that setup.
 
 **Trainer.** Recognition, recall, execution on the virtual cube, flashcards and SM-2 spaced review, with progress by set.
 

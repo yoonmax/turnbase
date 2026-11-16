@@ -74,6 +74,13 @@ describe('settings and key-value data', () => {
     expect((await loadSettings()).theme).toBe('light');
   });
 
+  it('moves the old stickered default to see-through, and keeps a chosen stickerless', () => {
+    expect(DEFAULT_SETTINGS.cubeStyle).toBe('seethrough');
+    expect(migrateSettings({ lookVersion: 2, cubeStyle: 'stickered' }).cubeStyle).toBe('seethrough');
+    expect(migrateSettings({ lookVersion: 2, cubeStyle: 'stickerless' }).cubeStyle).toBe('stickerless');
+    expect(migrateSettings({ lookVersion: LOOK_VERSION, cubeStyle: 'stickered' }).cubeStyle).toBe('stickered');
+  });
+
   it('returns the fallback for a missing key', async () => {
     expect(await kvGet('nope', 7)).toBe(7);
     await kvSet('nope', 8);

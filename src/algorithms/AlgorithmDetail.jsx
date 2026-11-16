@@ -2,10 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, Copy, Star } from 'lucide-react';
 import { applyMoves, isSolved } from '../cube/CubeEngine.js';
 import { invertMoves, movesToDisplay } from '../cube/CubeMoves.js';
+
+const SIDE_NAMES = { '#ffd500': 'yellow', '#f4f3ee': 'white', '#009b48': 'green', '#0046ad': 'blue', '#c8102e': 'red', '#ff6a13': 'orange' };
+
+/** Library views have the cross color underneath, so name what is on top and in front. */
+function holdInstruction(schemeId) {
+  const scheme = CUBE_SCHEMES[schemeId]?.colors;
+  const top = scheme && SIDE_NAMES[scheme.D];
+  const front = scheme && SIDE_NAMES[scheme.F];
+  return top && front ? `Hold a solved cube with ${top} on top and ${front} in front.` : 'Hold a solved cube the way the diagram shows it.';
+}
 import { CameraViews, CubeScene } from '../cube/CubeScene.jsx';
 import { MoveTimeline, PlayerControls } from '../cube/PlayerControls.jsx';
 import { useControllerState, useCubeController, useSequencePlayer } from '../hooks/useCube.js';
 import { CaseDiagram } from './CaseDiagram.jsx';
+import { setupFor } from './setupMoves.js';
+import { solvedState } from '../cube/CubeEngine.js';
+import { CUBE_SCHEMES } from '../cube/CubeThemes.js';
 import { describeMove, findTriggers, playableMoves, recognitionNotes } from './AlgorithmCatalog.js';
 import { useProgress } from '../trainer/TrainingProgress.js';
 import { useApp } from '../app/store.js';
@@ -15,6 +28,8 @@ import { goalReached } from '../trainer/caseSets.js';
 /** One case, on a 3D cube set up in its exact starting state. */
 export function AlgorithmDetail({ entry, onBack }) {
   const [algIndex, setAlgIndex] = useState(0);
+  const [watching, setWatching] = useState(false);
+  const cubeScheme = useApp((s) => s.settings.cubeScheme);
   const controller = useCubeController({ state: entry.caseState });
   const { player, snapshot } = useSequencePlayer(controller, { baseState: entry.caseState, moves: entry.primary.moves });
   const scene = useRef(null);
@@ -27,9 +42,18 @@ export function AlgorithmDetail({ entry, onBack }) {
 
   const { moves, preAuf } = useMemo(() => playableMoves(entry, algIndex), [entry, algIndex]);
 
+  const setup = useMemo(() => setupFor(entry), [entry]);
+  // Watching the setup plays from a solved cube to the case; otherwise the algorithm plays.
+  const shown = watching ? setup.all : moves;
+
   useEffect(() => {
+    if (watching) {
+      player.load({ baseState: solvedState(), moves: setup.all });
+      player.play();
+      return;
+    }
     player.load({ baseState: entry.caseState, moves });
-  }, [player, entry, moves]);
+  }, [player, entry, moves, watching, setup]);
 
   useEffect(() => {
     markUsed(entry.id);
@@ -38,8 +62,8 @@ export function AlgorithmDetail({ entry, onBack }) {
   const triggers = useMemo(() => findTriggers(moves), [moves]);
   const notes = useMemo(() => recognitionNotes(entry), [entry]);
   const highlighted = snapshot.activeIndex >= 0 ? snapshot.activeIndex : snapshot.index - 1;
-  const current = moves[highlighted] ?? null;
-  const solved = snapshot.index === moves.length && isSolved(state);
+  const current = shown[highlighted] ?? null;
+  const solved = !watching && snapshot.index === moves.length && isSolved(state);
   const alg = entry.algs[algIndex];
   // Checked here and now, on the same engine, for the algorithm being shown.
   const verified = useMemo(() => goalReached(entry, applyMoves(entry.caseState, moves)), [entry, moves]);
@@ -98,9 +122,48 @@ export function AlgorithmDetail({ entry, onBack }) {
               'Press play, or step through one move at a time.'
             )}
           </div>
-          <MoveTimeline player={player} snapshot={snapshot} moves={moves} library />
+          <MoveTimeline player={player} snapshot={snapshot} moves={shown} library />
           <PlayerControls player={player} snapshot={snapshot} />
           <CameraViews sceneRef={scene} />
+          <details className="group rounded-2xl bg-[var(--fill)] px-4 py-3" data-testid="setup-section" onToggle={(e) => { if (!e.currentTarget.open) setWatching(false); }}>
+            <summary className="cursor-pointer text-[0.875rem] font-semibold list-none flex items-center justify-between" data-testid="setup-toggle">
+              Set this case up on a real cube
+              <span className="text-graphite font-normal text-[0.8125rem] group-open:hidden">Show</span>
+              <span className="text-graphite font-normal text-[0.8125rem] hidden group-open:inline">Hide</span>
+            </summary>
+            <p className="m-0 mt-2 text-[0.8125rem] text-graphite">
+              {holdInstruction(cubeScheme)} Then do these {setup.all.length} moves, and the cube will match the diagram.
+            </p>
+            <p className="notation m-0 mt-2 text-[1rem] leading-relaxed break-words" data-testid="setup-moves">
+              {movesToDisplay(setup.moves)}
+              {setup.finalRotation.length ? <span className="text-graphite"> then turn the whole cube {movesToDisplay(setup.finalRotation)}</span> : null}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {watching ? (
+                <button type="button" className="btn btn-primary" data-testid="setup-back" onClick={() => setWatching(false)}>
+                  Back to the algorithm
+                </button>
+              ) : (
+                <button type="button" className="btn btn-primary" data-testid="setup-watch" onClick={() => setWatching(true)}>
+                  Watch the setup from solved
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn"
+                data-testid="setup-copy"
+                onClick={async () => {
+                  await copyText(movesToDisplay(setup.all));
+                  pushToast({ message: 'Setup copied', durationMs: 1800 });
+                }}
+              >
+                Copy the setup
+              </button>
+            </div>
+            {watching && snapshot.index === setup.all.length ? (
+              <p className="m-0 mt-2 text-[0.8125rem] text-ready" role="status" data-testid="setup-done">This is the case. Go back to the algorithm to solve it.</p>
+            ) : null}
+          </details>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5 mt-6 pt-5 border-t border-rule text-[0.875rem]">

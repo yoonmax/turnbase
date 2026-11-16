@@ -1,5 +1,6 @@
 import { Suspense, forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
 import { Environment, Lightformer, OrbitControls } from '@react-three/drei';
 import gsap from 'gsap';
 import { CubeRenderer } from './CubeRenderer.jsx';
@@ -82,6 +83,45 @@ function Lighting({ dark }) {
   );
 }
 
+// The far side of a see-through cube fades toward the background, so near and far tiles
+// are easy to tell apart. The fade follows the camera, so zooming keeps the same look.
+function DepthFade({ color }) {
+  const scene = useThree((s) => s.scene);
+  useEffect(() => {
+    scene.fog = new THREE.Fog(color, 8, 16);
+    return () => {
+      scene.fog = null;
+    };
+  }, [scene, color]);
+  useFrame(({ camera }) => {
+    if (!scene.fog) return;
+    const d = camera.position.length();
+    scene.fog.near = d - 0.6;
+    scene.fog.far = d + 3.1;
+  });
+  return null;
+}
+
+/** The color actually behind the canvas, read from the theme. */
+function usePageColors(environment, dark) {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const observer = new MutationObserver(() => setVersion((v) => v + 1));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+  return useMemo(() => {
+    const css = getComputedStyle(document.documentElement);
+    const paper = css.getPropertyValue('--paper').trim() || '#f3f5f8';
+    const ink = css.getPropertyValue('--ink').trim() || '#14171b';
+    const background = environment === 'dark' ? '#17181a' : environment === 'light' ? '#f7f6f2' : paper;
+    const backgroundIsDark = environment === 'dark' || (environment !== 'light' && dark);
+    // A quiet outline: darker than the page in light themes, lighter in dark ones.
+    const rim = new THREE.Color(background).lerp(new THREE.Color(backgroundIsDark ? '#ffffff' : ink), backgroundIsDark ? 0.18 : 0.2);
+    return { background, rim: `#${rim.getHexString()}` };
+  }, [environment, dark, version]); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
 function useResolvedDark(environment) {
   const [systemDark, setSystemDark] = useState(() => document.documentElement.dataset.theme === 'dark');
   useEffect(() => {
@@ -107,6 +147,8 @@ export const CubeScene = forwardRef(function CubeScene({ controller, interactive
   const orbit = useRef(null);
   const api = useRef(null);
   const dark = useResolvedDark(settings.cubeEnvironment);
+  const seeThrough = settings.cubeStyle === 'seethrough';
+  const page = usePageColors(settings.cubeEnvironment, dark);
   const [lostGl, setLostGl] = useState(false);
 
   useImperativeHandle(ref, () => ({ setView: (name) => api.current?.setView(name) }), []);
@@ -150,12 +192,13 @@ export const CubeScene = forwardRef(function CubeScene({ controller, interactive
             }}
             style={{ position: 'absolute', inset: 0, touchAction: 'none' }}
           >
-            <Lighting dark={dark} />
+            {seeThrough ? <DepthFade color={page.background} /> : <Lighting dark={dark} />}
             <CubeRenderer
               controller={controller}
               colors={colors}
               style={settings.cubeStyle}
               bodyColor={settings.cubeStyle === 'stickerless' ? '#26272b' : '#141518'}
+              rimColor={page.rim}
               interactive={interactive}
               onMove={onMove}
               orbit={orbit}
