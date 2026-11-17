@@ -22,7 +22,11 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Cross planning.** After every 3×3 solve, the timer shows the shortest cross and X-cross for the scramble you just did, so you can check what you planned during inspection. The Trainer has a cross drill: plan the cross from a fresh scramble within 15 seconds, type it, and see whether it works and how it compares with the optimum. Pick any of the six cross colors. Solutions are optimal in face turns, found by a search with pruning tables that runs in a worker.
 
-**Solve video.** Switch on camera recording in Settings and each solve on the timer page is filmed, from when you put your hands down until just after the timer stops. Watch it back at 1×, 0.5×, 0.25× or 0.1×, step a frame at a time, and see the solve time running over the picture. Clips stay on your device and are left out of backups. The newest 25 are kept, plus any you mark to keep, and any clip can be downloaded.
+**Solve video.** Switch on camera recording in Settings and each solve on the timer page is filmed, from when you put your hands down until just after the timer stops. Watch it back at 1×, 0.5×, 0.25× or 0.1×, step a frame at a time, and see the solve time running over the picture. Clips stay on your device and are left out of backups. The newest 25 are kept, plus any you mark to keep, and any clip can be downloaded. A new best single, ao5 or ao12 keeps the video of every solve in it automatically.
+
+**Splits.** While watching a 3×3 solve's video, pause where the cross, F2L and OLL end and press S. turnbase saves the four stage times with the solve, and Statistics shows each stage's mean, latest-12 mean, best and share of your time.
+
+**Competition mode.** The trophy button on the timer starts a round of five solves with inspection, scored as a WCA average of 5. Before the last solve it shows the best and worst average still possible and, if you set a target, exactly what the last solve needs.
 
 **Installable and offline.** turnbase is a progressive web app. Install it from the browser on a computer or phone, and the timer, scrambles, cube and library all work without a connection.
 

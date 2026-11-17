@@ -4,6 +4,7 @@ import { useApp } from '../app/store.js';
 import { ConfirmDialog, Modal } from '../components/Modal.jsx';
 import { ClipPlayer } from '../camera/ClipPlayer.jsx';
 import { useCamera } from '../camera/CameraRecorder.js';
+import { STAGES, stageDurations } from '../statistics/Splits.js';
 import { formatCs, formatDate, formatMs } from '../utils/format.js';
 import { DNF } from '../statistics/AverageCalculator.js';
 import { solveValue } from '../statistics/StatisticsEngine.js';
@@ -75,6 +76,16 @@ export function SolveDetail({ solve, number, onClose }) {
             </dd>
           </>
         ) : null}
+        {stageDurations(solve) ? (
+          <>
+            <dt className="text-graphite">Splits</dt>
+            <dd className="m-0 notation" data-testid="detail-splits">
+              {stageDurations(solve)
+                .map((ms, i) => `${STAGES[i].label} ${formatMs(ms, 2)}`)
+                .join(' · ')}
+            </dd>
+          </>
+        ) : null}
         <dt className="text-graphite">Puzzle</dt>
         <dd className="m-0">
           {getPuzzle(solve.puzzle).name}
@@ -116,7 +127,7 @@ export function SolveDetail({ solve, number, onClose }) {
       {hasClip ? (
         <div className="mt-5 pt-4 border-t border-rule">
           <h3 className="m-0 mb-2 text-[0.875rem] font-medium">Video</h3>
-          <ClipPlayer solveId={solve.id} />
+          <ClipPlayer solveId={solve.id} solve={solve} />
         </div>
       ) : null}
 

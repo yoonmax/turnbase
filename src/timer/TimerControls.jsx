@@ -55,7 +55,7 @@ export function TimerControls() {
         </button>
       ) : null}
       <Modal open={watching} onClose={() => setWatching(false)} title="Your solve" width="44rem" testId="watch-panel">
-        {latest ? <ClipPlayer solveId={latest.id} onDeleted={() => setWatching(false)} /> : null}
+        {latest ? <ClipPlayer solveId={latest.id} solve={latest} onDeleted={() => setWatching(false)} /> : null}
       </Modal>
     </div>
   );

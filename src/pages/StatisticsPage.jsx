@@ -15,6 +15,7 @@ import {
 import { isDnf, rollingAverage, rollingMean3, trimFor } from '../statistics/AverageCalculator.js';
 import { formatCs, formatDate, formatDuration } from '../utils/format.js';
 import { EmptyState } from '../components/EmptyState.jsx';
+import { splitStats } from '../statistics/Splits.js';
 import { SolveDetail, resultLabel } from '../sessions/SolveDetail.jsx';
 import { ConfirmDialog } from '../components/Modal.jsx';
 import { downloadText, slug } from '../utils/download.js';
@@ -80,6 +81,48 @@ function Totals({ stats }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+function SplitTable({ solves }) {
+  const rows = useMemo(() => splitStats(solves), [solves]);
+  if (!rows[0].count) return null;
+  return (
+    <Section
+      title="Stage splits"
+      note={`From the ${rows[0].count} ${rows[0].count === 1 ? 'solve' : 'solves'} you have marked while watching the video. Share is each stage's part of the total time.`}
+      testId="split-stats"
+    >
+      <div className="overflow-x-auto scrollbar-quiet">
+        <table className="w-full text-[0.8125rem] border-collapse min-w-[26rem]">
+          <thead>
+            <tr className="text-graphite">
+              <th className="font-normal text-left pb-1">Stage</th>
+              <th className="font-normal text-right pb-1">Mean</th>
+              <th className="font-normal text-right pb-1">Latest 12</th>
+              <th className="font-normal text-right pb-1">Best</th>
+              <th className="font-normal text-right pb-1">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t border-rule" data-testid={`split-row-${r.id}`}>
+                <td className="py-1.5">{r.label}</td>
+                <td className="py-1.5 text-right notation">{formatCs(r.mean)}</td>
+                <td className="py-1.5 text-right notation">{formatCs(r.recent)}</td>
+                <td className="py-1.5 text-right notation">{formatCs(r.best)}</td>
+                <td className="py-1.5 text-right">
+                  <span className="inline-flex items-center gap-2 justify-end">
+                    <span className="h-1.5 rounded-full bg-[var(--accent)] opacity-70" style={{ width: `${Math.round((r.share ?? 0) * 60)}px` }} aria-hidden="true" />
+                    <span className="tabular w-9">{Math.round((r.share ?? 0) * 100)}%</span>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Section>
   );
 }
 
@@ -391,6 +434,8 @@ export default function StatisticsPage() {
                 </p>
               </div>
             </div>
+
+            <SplitTable solves={filtered} />
 
             <Section title="Times over this session" note="Each dot is a solve. Select one to open it. DNFs have no time, so they leave gaps in the dots.">
               <Legend series={trend} />

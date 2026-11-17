@@ -6,7 +6,7 @@
 import { create } from 'zustand';
 import { STATE } from '../timer/TimerStateMachine.js';
 import { machine } from '../timer/TimerEngine.js';
-import { CLIP_LIMIT, deleteClip, listClipInfo, pruneClips, saveClip } from '../storage/ClipRepository.js';
+import { CLIP_LIMIT, deleteClip, listClipInfo, pruneClips, saveClip, updateClip } from '../storage/ClipRepository.js';
 
 export const useCamera = create(() => ({
   status: 'off', // 'off' | 'starting' | 'on' | 'error'
@@ -170,7 +170,7 @@ function onTimerEvent(event) {
 }
 
 /** Saves the take that just ended as the clip of this solve. */
-export async function saveClipFor(solve, allSolveIds = []) {
+export async function saveClipFor(solve, allSolveIds = [], { keep = false } = {}) {
   const done = pending;
   pending = null;
   const take = done ? await done : null;
@@ -184,7 +184,7 @@ export async function saveClipFor(solve, allSolveIds = []) {
     startMs: Math.max(0, take.solveStart - take.startedAt),
     endMs: Math.max(0, take.solveStop - take.startedAt),
     createdAt: Date.now(),
-    kept: false,
+    kept: keep,
   };
   await saveClip(clip);
   const removed = await pruneClips([...allSolveIds, solve.id], { limit: CLIP_LIMIT }).catch(() => []);
@@ -200,4 +200,9 @@ export async function removeClip(solveId) {
   const ids = new Set(useCamera.getState().clipIds);
   ids.delete(solveId);
   useCamera.setState({ clipIds: ids });
+}
+
+/** Marks clips to keep, such as every solve of a new best average. Missing clips are skipped. */
+export async function keepClips(solveIds) {
+  await Promise.all(solveIds.map((id) => updateClip(id, { kept: true }).catch(() => null)));
 }

@@ -6,7 +6,10 @@ import { TimerDisplay } from '../timer/TimerDisplay.jsx';
 import { TimerControls } from '../timer/TimerControls.jsx';
 import { LastCross } from '../timer/LastCross.jsx';
 import { CameraPreview } from '../camera/CameraPreview.jsx';
-import { saveClipFor } from '../camera/CameraRecorder.js';
+import { keepClips, saveClipFor } from '../camera/CameraRecorder.js';
+import { newBests } from '../statistics/PersonalBests.js';
+import { recordRoundSolve, useRound } from '../timer/competition.js';
+import { CompetitionPanel, RoundButton } from '../timer/CompetitionPanel.jsx';
 import { attachTimerInput, configureTimer, machine, setResultHandler } from '../timer/TimerEngine.js';
 import { ScrambleDisplay } from '../scrambles/ScrambleDisplay.jsx';
 import { ScramblePreview } from '../scrambles/ScramblePreview.jsx';
@@ -93,18 +96,34 @@ export default function TimerPage() {
   const [mobileHistory, setMobileHistory] = useState(false);
   const wide = useMediaQuery('(min-width: 1280px)');
 
+  const roundActive = useRound((s) => s.active);
   useEffect(() => {
-    configureTimer(settings);
-  }, [settings]);
+    // A competition round always uses inspection, as at a real competition.
+    configureTimer({ ...settings, inspection: settings.inspection || roundActive });
+  }, [settings, roundActive]);
 
   useEffect(() => {
     setResultHandler(async (result) => {
       const { recordSolve, newScramble } = useApp.getState();
+      const before = useApp.getState().solves;
       const solve = await recordSolve(result);
       newScramble();
-      saveClipFor(solve, useApp.getState().solves.map((s) => s.id)).catch(() => {
+      recordRoundSolve(solve.id);
+      const after = useApp.getState().solves;
+      const bests = newBests(before, after);
+      const { recordSolves } = useApp.getState().settings;
+      if (bests.length) {
+        const text = bests.map((b) => `${b.label} ${formatCs(b.value)} (was ${formatCs(b.previous)})`).join(', ');
+        useApp.getState().pushToast({ message: `New best ${text}${recordSolves ? '. Video kept.' : ''}`, durationMs: 5000 });
+      }
+      try {
+        await saveClipFor(solve, after.map((s) => s.id), { keep: bests.length > 0 });
+        // A new best average keeps the video of every solve in it.
+        const others = [...new Set(bests.flatMap((b) => b.solveIds))].filter((id) => id !== solve.id);
+        if (others.length) await keepClips(others);
+      } catch {
         useApp.getState().pushToast({ message: 'The camera clip could not be saved.' });
-      });
+      }
     });
     const detach = attachTimerInput(surface.current);
     return () => {
@@ -166,11 +185,13 @@ export default function TimerPage() {
         </div>
 
         <div className="focus-fade flex flex-col items-center gap-2.5 px-3" style={{ paddingBottom: 'var(--page-bottom)' }}>
+          <CompetitionPanel />
           <TimerControls />
-          <LastCross />
+          {roundActive ? null : <LastCross />}
           {showDiagram && !wide ? <ScramblePreview key={scramble?.id} puzzleId={puzzle.id} text={scramble?.text} width={110} /> : null}
           <div className="flex items-center gap-1 sm:gap-2">
             <SessionStats />
+            <RoundButton />
             {wide ? null : (
               <button type="button" className="icon-btn shrink-0" aria-label="Show solves" title="Show solves" data-testid="mobile-history" onClick={() => setMobileHistory(true)}>
                 <History size={18} strokeWidth={1.8} />

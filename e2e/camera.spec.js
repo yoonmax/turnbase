@@ -100,3 +100,63 @@ test('with recording off, the camera is never opened', async ({ page }) => {
   await expect(page.getByTestId('camera-preview')).toHaveCount(0);
   expect(await page.evaluate(() => window.__cameraCalls)).toBe(0);
 });
+
+test('splits are marked on the video and show in solve details and statistics', async ({ page }) => {
+  await turnOnRecording(page);
+  await openTimer(page);
+  await expect(page.getByTestId('camera-state')).toHaveText('Camera on', { timeout: 15000 });
+  await runSolve(page, { solveMs: 2000 });
+  await expect(page.getByTestId('watch-latest')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('watch-latest').click();
+  await page.waitForFunction(() => {
+    const v = document.querySelector('[data-testid="clip-video"]');
+    return v && Number.isFinite(v.duration) && v.readyState >= 2;
+  }, null, { timeout: 15000 });
+
+  // Mark at 0.5 s, 1.2 s and 1.6 s into the solve.
+  const clipStart = await page.evaluate(() => document.querySelector('[data-testid="clip-video"]').currentTime + 0.4);
+  for (const at of [0.5, 1.2, 1.6]) {
+    await page.evaluate((t) => {
+      const v = document.querySelector('[data-testid="clip-video"]');
+      v.currentTime = t;
+    }, clipStart + at);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('s');
+  }
+  await expect(page.getByTestId('split-mark')).toHaveText('All marked');
+  await expect(page.getByTestId('split-cross')).toContainText(/0\.[45]\d/);
+  await expect(page.getByTestId('split-f2l')).toContainText(/0\.[67]\d/);
+  await expect(page.getByTestId('split-pll')).not.toContainText('–');
+  await expect(page.getByTestId('split-marker-oll')).toBeVisible();
+
+  await page.getByTestId('split-undo').click();
+  await expect(page.getByTestId('split-mark')).toContainText('OLL');
+  await page.keyboard.press('s');
+  await expect(page.getByTestId('split-mark')).toHaveText('All marked');
+
+  await page.keyboard.press('Escape');
+  await page.getByTestId('solve-row').first().click();
+  await expect(page.getByTestId('detail-splits')).toContainText('Cross');
+  await page.keyboard.press('Escape');
+  await page.goto('/statistics');
+  await expect(page.getByTestId('split-row-cross')).toBeVisible();
+  await expect(page.getByTestId('split-stats')).toContainText('From the 1 solve');
+});
+
+test('a new personal best keeps its video automatically', async ({ page }) => {
+  await turnOnRecording(page);
+  await openTimer(page);
+  await expect(page.getByTestId('camera-state')).toHaveText('Camera on', { timeout: 15000 });
+  await runSolve(page, { solveMs: 1500 });
+  await expect(page.getByTestId('watch-latest')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('watch-latest').click();
+  await expect(page.getByTestId('clip-keep')).toHaveAttribute('aria-pressed', 'false');
+  await page.keyboard.press('Escape');
+
+  await runSolve(page, { solveMs: 700 });
+  await expect(page.getByText(/New best single/)).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText(/Video kept/)).toBeVisible();
+  await expect(page.getByTestId('watch-latest')).toBeVisible({ timeout: 10000 });
+  await page.getByTestId('watch-latest').click();
+  await expect(page.getByTestId('clip-keep')).toHaveAttribute('aria-pressed', 'true');
+});
