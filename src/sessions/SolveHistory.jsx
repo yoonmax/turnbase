@@ -7,6 +7,8 @@ import { solveValue } from '../statistics/StatisticsEngine.js';
 import { EmptyState } from '../components/EmptyState.jsx';
 import { prefersReducedMotion } from '../app/appearance.js';
 import { SolveDetail } from './SolveDetail.jsx';
+import { Video } from 'lucide-react';
+import { useCamera } from '../camera/CameraRecorder.js';
 
 const PAGE = 150;
 
@@ -19,6 +21,7 @@ function resultText(solve) {
 
 export function SolveHistory() {
   const solves = useApp((s) => s.solves);
+  const clipIds = useCamera((s) => s.clipIds);
   const [limit, setLimit] = useState(PAGE);
   const [openId, setOpenId] = useState(null);
   const listRef = useRef(null);
@@ -70,7 +73,10 @@ export function SolveHistory() {
               className="w-full h-7 grid grid-cols-[1.75rem_1fr_3.5rem] gap-x-2 items-center px-2 rounded-lg bg-transparent border-none text-right row-hover notation text-[0.75rem]"
             >
               <span className="text-faint">{number}</span>
-              <span className={solve.penalty === 'dnf' || solve.penalty === 'dns' ? 'text-danger' : ''}>{resultText(solve)}</span>
+              <span className={`inline-flex items-center justify-end gap-1 ${solve.penalty === 'dnf' || solve.penalty === 'dns' ? 'text-danger' : ''}`}>
+                {clipIds.has(solve.id) ? <Video size={11} strokeWidth={1.8} className="text-graphite" aria-label="Has video" data-testid="row-has-clip" /> : null}
+                {resultText(solve)}
+              </span>
               <span className="text-graphite">{formatCs(ao5)}</span>
             </button>
           </li>

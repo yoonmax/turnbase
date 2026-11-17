@@ -5,7 +5,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'turnbase';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 export const STORES = {
   sessions: 'sessions',
@@ -13,6 +13,7 @@ export const STORES = {
   kv: 'kv',
   progress: 'progress',
   customAlgs: 'customAlgs',
+  clips: 'clips', // Camera recordings of solves, keyed by solve id. Never exported.
 };
 
 // Each entry upgrades records from version i to i + 1. Add to the end only.
@@ -33,6 +34,9 @@ export function getDb() {
           db.createObjectStore(STORES.kv, { keyPath: 'key' });
           db.createObjectStore(STORES.progress, { keyPath: 'caseId' });
           db.createObjectStore(STORES.customAlgs, { keyPath: 'id' });
+        }
+        if (oldVersion < 2) {
+          db.createObjectStore(STORES.clips, { keyPath: 'solveId' });
         }
       },
       blocking() {

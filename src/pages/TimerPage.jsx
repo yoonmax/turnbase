@@ -5,6 +5,8 @@ import { useApp } from '../app/store.js';
 import { TimerDisplay } from '../timer/TimerDisplay.jsx';
 import { TimerControls } from '../timer/TimerControls.jsx';
 import { LastCross } from '../timer/LastCross.jsx';
+import { CameraPreview } from '../camera/CameraPreview.jsx';
+import { saveClipFor } from '../camera/CameraRecorder.js';
 import { attachTimerInput, configureTimer, machine, setResultHandler } from '../timer/TimerEngine.js';
 import { ScrambleDisplay } from '../scrambles/ScrambleDisplay.jsx';
 import { ScramblePreview } from '../scrambles/ScramblePreview.jsx';
@@ -98,8 +100,11 @@ export default function TimerPage() {
   useEffect(() => {
     setResultHandler(async (result) => {
       const { recordSolve, newScramble } = useApp.getState();
-      await recordSolve(result);
+      const solve = await recordSolve(result);
       newScramble();
+      saveClipFor(solve, useApp.getState().solves.map((s) => s.id)).catch(() => {
+        useApp.getState().pushToast({ message: 'The camera clip could not be saved.' });
+      });
     });
     const detach = attachTimerInput(surface.current);
     return () => {
@@ -154,6 +159,7 @@ export default function TimerPage() {
     <div className="h-full relative overflow-hidden" data-testid="timer-page">
       <main ref={surface} className="timer-surface absolute inset-0 flex flex-col select-none">
         <ScrambleDisplay />
+        <CameraPreview inline={!wide} />
 
         <div className="flex-1 min-h-0 flex items-center justify-center px-2">
           <TimerDisplay />

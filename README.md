@@ -22,6 +22,8 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Cross planning.** After every 3×3 solve, the timer shows the shortest cross and X-cross for the scramble you just did, so you can check what you planned during inspection. The Trainer has a cross drill: plan the cross from a fresh scramble within 15 seconds, type it, and see whether it works and how it compares with the optimum. Pick any of the six cross colors. Solutions are optimal in face turns, found by a search with pruning tables that runs in a worker.
 
+**Solve video.** Switch on camera recording in Settings and each solve on the timer page is filmed, from when you put your hands down until just after the timer stops. Watch it back at 1×, 0.5×, 0.25× or 0.1×, step a frame at a time, and see the solve time running over the picture. Clips stay on your device and are left out of backups. The newest 25 are kept, plus any you mark to keep, and any clip can be downloaded.
+
 **Installable and offline.** turnbase is a progressive web app. Install it from the browser on a computer or phone, and the timer, scrambles, cube and library all work without a connection.
 
 **Feel.** On phones, a short vibration when the timer is ready, when it starts and when it stops (Android; on iOS 18 and later a light tap where Safari allows it). The turn sound, when switched on, is a layered plastic click.
@@ -215,6 +217,7 @@ Backups are validated before anything is written, and the import runs in one tra
 - Frame rates above 60 Hz have not been measured.
 - Sounds have been checked for playing without error, not by ear.
 - Vibration has been tested by stubbing the browser API, not on a physical phone.
+- Camera recording was tested with Chromium's simulated camera, not a real webcam or phone camera. The time overlay follows the recorder's start, so it can be off by a frame or two.
 - Solve data does not sync between devices.
 
 ## Licenses

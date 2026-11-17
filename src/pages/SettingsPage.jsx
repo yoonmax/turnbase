@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useApp } from '../app/store.js';
 import { CUBE_SCHEMES, FACE_NAMES, resolveScheme } from '../cube/CubeThemes.js';
 import { KeymapEditor } from '../cube/KeymapEditor.jsx';
@@ -12,8 +12,10 @@ import { PUZZLES } from '../scrambles/PuzzleRegistry.js';
 import { ThemeEditor } from '../settings/ThemeEditor.jsx';
 import { CrossColorPicker } from '../trainer/CrossSolutions.jsx';
 import { isIos, promptInstall, useInstall } from '../app/install.js';
+import { cameraSupported, refreshDevices, useCamera } from '../camera/CameraRecorder.js';
+import { CLIP_LIMIT } from '../storage/ClipRepository.js';
 
-const SECTIONS = ['Appearance', 'Timer', 'Inspection', 'Scrambles', 'Cube controls', 'Cube appearance', 'Animation', 'Sound', 'Statistics', 'Data', 'App', 'Accessibility'];
+const SECTIONS = ['Appearance', 'Timer', 'Inspection', 'Scrambles', 'Cube controls', 'Cube appearance', 'Animation', 'Sound', 'Camera', 'Statistics', 'Data', 'App', 'Accessibility'];
 
 function Setting({ label, hint, children, htmlFor }) {
   return (
@@ -60,6 +62,26 @@ function Slider({ id, label, hint, value, min, max, step, format, onChange }) {
           {format(value)}
         </span>
       </div>
+    </Setting>
+  );
+}
+
+function CameraChoice({ value, onChange }) {
+  const devices = useCamera((s) => s.devices);
+  useEffect(() => {
+    refreshDevices();
+  }, []);
+  if (devices.length < 2) return null;
+  return (
+    <Setting label="Camera" htmlFor="cameraDeviceId">
+      <select id="cameraDeviceId" className="field max-w-[14rem]" value={value ?? ''} data-testid="setting-cameraDeviceId" onChange={(e) => onChange(e.target.value || null)}>
+        <option value="">Default (front)</option>
+        {devices.map((d) => (
+          <option key={d.id} value={d.id}>
+            {d.label}
+          </option>
+        ))}
+      </select>
     </Setting>
   );
 }
@@ -255,6 +277,21 @@ export default function SettingsPage() {
             <Toggle id="turnSound" label="Turn sounds" hint="A small click for each cube turn." value={settings.turnSound} onChange={set('turnSound')} />
             <Toggle id="timerSound" label="Timer sounds" hint="A tone when the timer is ready and when it stops." value={settings.timerSound} onChange={set('timerSound')} />
             <Toggle id="haptics" label="Vibration" hint="On phones that support it, a short buzz when the timer is ready, starts and stops." value={settings.haptics} onChange={set('haptics')} />
+          </Group>
+
+          <Group title="Camera">
+            <p className="m-0 mb-2 text-[0.8125rem] text-graphite max-w-[64ch]">
+              Film each solve on the timer page and watch it back, slowed down or a frame at a time. Clips never leave this device and are not part of backups. The newest {CLIP_LIMIT} are kept, plus any you mark to keep.
+            </p>
+            {cameraSupported() ? (
+              <>
+                <Toggle id="recordSolves" label="Record solves with the camera" hint="Recording starts when you put your hands down and stops just after the timer." value={settings.recordSolves} onChange={set('recordSolves')} />
+                <CameraChoice value={settings.cameraDeviceId} onChange={set('cameraDeviceId')} />
+                <Toggle id="mirrorCamera" label="Mirror the picture" hint="Like a mirror, for the preview and playback." value={settings.mirrorCamera} onChange={set('mirrorCamera')} />
+              </>
+            ) : (
+              <p className="m-0 text-[0.8125rem]">This browser cannot record from a camera.</p>
+            )}
           </Group>
 
           <Group title="Statistics">

@@ -2,6 +2,8 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Copy, Trash2 } from 'lucide-react';
 import { useApp } from '../app/store.js';
 import { ConfirmDialog, Modal } from '../components/Modal.jsx';
+import { ClipPlayer } from '../camera/ClipPlayer.jsx';
+import { useCamera } from '../camera/CameraRecorder.js';
 import { formatCs, formatDate, formatMs } from '../utils/format.js';
 import { DNF } from '../statistics/AverageCalculator.js';
 import { solveValue } from '../statistics/StatisticsEngine.js';
@@ -36,6 +38,7 @@ export function SolveDetail({ solve, number, onClose }) {
   const [reconstruction, setReconstruction] = useState('');
   const [viewing, setViewing] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const hasClip = useCamera((s) => Boolean(solve && s.clipIds.has(solve.id)));
 
   useEffect(() => {
     setComment(solve?.comment ?? '');
@@ -107,6 +110,13 @@ export function SolveDetail({ solve, number, onClose }) {
               View on cube
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {hasClip ? (
+        <div className="mt-5 pt-4 border-t border-rule">
+          <h3 className="m-0 mb-2 text-[0.875rem] font-medium">Video</h3>
+          <ClipPlayer solveId={solve.id} />
         </div>
       ) : null}
 

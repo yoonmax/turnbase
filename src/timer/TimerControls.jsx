@@ -1,4 +1,8 @@
-import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Trash2, Video } from 'lucide-react';
+import { useCamera } from '../camera/CameraRecorder.js';
+import { ClipPlayer } from '../camera/ClipPlayer.jsx';
+import { Modal } from '../components/Modal.jsx';
 import { useApp } from '../app/store.js';
 import { useTimerState } from './TimerEngine.js';
 import { STATE } from './TimerStateMachine.js';
@@ -9,6 +13,8 @@ export function TimerControls() {
   const latest = useApp((s) => s.solves[s.solves.length - 1] ?? null);
   const setPenalty = useApp((s) => s.setPenalty);
   const deleteSolves = useApp((s) => s.deleteSolves);
+  const hasClip = useCamera((s) => Boolean(latest && s.clipIds.has(latest.id)));
+  const [watching, setWatching] = useState(false);
 
   const visible = latest && state === STATE.STOPPED;
   const options = [
@@ -42,6 +48,15 @@ export function TimerControls() {
       >
         <Trash2 size={15} strokeWidth={1.6} />
       </button>
+      {hasClip ? (
+        <button type="button" className="btn" data-testid="watch-latest" title="Watch this solve" onClick={() => setWatching(true)}>
+          <Video size={14} strokeWidth={1.7} />
+          Watch
+        </button>
+      ) : null}
+      <Modal open={watching} onClose={() => setWatching(false)} title="Your solve" width="44rem" testId="watch-panel">
+        {latest ? <ClipPlayer solveId={latest.id} onDeleted={() => setWatching(false)} /> : null}
+      </Modal>
     </div>
   );
 }

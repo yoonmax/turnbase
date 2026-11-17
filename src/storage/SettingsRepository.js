@@ -46,6 +46,10 @@ export const DEFAULT_SETTINGS = {
   turnSound: false,
   timerSound: false,
   haptics: true, // Vibration on phones for ready, start and stop.
+  // Camera
+  recordSolves: false, // Film each solve on the timer page, for slow-motion playback.
+  cameraDeviceId: null, // null is the default front camera.
+  mirrorCamera: true,
   // Statistics
   extraWindows: [],
   // Accessibility
