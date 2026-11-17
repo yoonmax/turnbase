@@ -14,11 +14,17 @@ A speedcubing timer you can use every day, with an interactive 3D cube and a ver
 
 **Statistics.** Mean of 3 and average of 5 by WCA rules, rolling ao12, ao50, ao100, ao1000 and any window you add. Charts for trends, spread, daily volume, personal bests and consistency, session comparison, CSV and JSON export.
 
-**3D cube.** Turn with the keyboard or by dragging a sticker. Face, slice, wide and whole-cube moves, undo and redo, and remappable key profiles. The default see-through style shows every side at once: tiles float with gaps between them and the far side fades back, so you can read the whole cube without turning it. Stickered and stickerless styles are in Settings.
+**3D cube.** Turn with the keyboard or by dragging a sticker. Face, slice, wide and whole-cube moves, undo and redo, and remappable key profiles. The default see-through style shows every side at once: tiles float with gaps between them and the far side fades back, so you can read the whole cube without turning it. Stickered and stickerless styles are in Settings. Tiles are flat, solid colors with black outlines, with no gloss or sheen at any angle. Hold Tab, or the Peek button, and the camera swings round to show the back, then springs back when you let go. Peeking only moves the camera, so it never counts as a move.
 
 **Algorithms.** All 21 PLL, 57 OLL and 41 F2L cases, plus 2-look and beginner sets. Each case opens on the 3D cube in its true starting state, and plays, steps, reverses and scrubs one exact state at a time. Each case also shows how to set it up on a real cube from solved, with no whole-cube rotations, and can play that setup.
 
 **Trainer.** Recognition, recall, execution on the virtual cube, flashcards and SM-2 spaced review, with progress by set.
+
+**Cross planning.** After every 3×3 solve, the timer shows the shortest cross and X-cross for the scramble you just did, so you can check what you planned during inspection. The Trainer has a cross drill: plan the cross from a fresh scramble within 15 seconds, type it, and see whether it works and how it compares with the optimum. Pick any of the six cross colors. Solutions are optimal in face turns, found by a search with pruning tables that runs in a worker.
+
+**Installable and offline.** turnbase is a progressive web app. Install it from the browser on a computer or phone, and the timer, scrambles, cube and library all work without a connection.
+
+**Feel.** On phones, a short vibration when the timer is ready, when it starts and when it stops (Android; on iOS 18 and later a light tap where Safari allows it). The turn sound, when switched on, is a layered plastic click.
 
 **Themes.** Light by default, on one plain background color. Six palettes in light and dark, or your own background and accent colors, with optional background glow and adjustable glass. Text contrast is calculated so any combination stays readable.
 
@@ -208,6 +214,7 @@ Backups are validated before anything is written, and the import runs in one tra
 - Automated browser tests ran in Chromium on macOS. Safari, Firefox and physical phones have not been tested, and mobile was tested through touch emulation.
 - Frame rates above 60 Hz have not been measured.
 - Sounds have been checked for playing without error, not by ear.
+- Vibration has been tested by stubbing the browser API, not on a physical phone.
 - Solve data does not sync between devices.
 
 ## Licenses

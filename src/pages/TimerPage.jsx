@@ -4,6 +4,7 @@ import { ChevronsUpDown, History, Maximize, PanelRightClose, PanelRightOpen } fr
 import { useApp } from '../app/store.js';
 import { TimerDisplay } from '../timer/TimerDisplay.jsx';
 import { TimerControls } from '../timer/TimerControls.jsx';
+import { LastCross } from '../timer/LastCross.jsx';
 import { attachTimerInput, configureTimer, machine, setResultHandler } from '../timer/TimerEngine.js';
 import { ScrambleDisplay } from '../scrambles/ScrambleDisplay.jsx';
 import { ScramblePreview } from '../scrambles/ScramblePreview.jsx';
@@ -160,6 +161,7 @@ export default function TimerPage() {
 
         <div className="focus-fade flex flex-col items-center gap-2.5 px-3" style={{ paddingBottom: 'var(--page-bottom)' }}>
           <TimerControls />
+          <LastCross />
           {showDiagram && !wide ? <ScramblePreview key={scramble?.id} puzzleId={puzzle.id} text={scramble?.text} width={110} /> : null}
           <div className="flex items-center gap-1 sm:gap-2">
             <SessionStats />

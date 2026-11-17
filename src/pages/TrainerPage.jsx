@@ -15,6 +15,7 @@ import { formatMs } from '../utils/format.js';
 import { prefersReducedMotion } from '../app/appearance.js';
 import { KeyboardOverlay } from '../cube/KeymapEditor.jsx';
 import { Keyboard } from 'lucide-react';
+import { CrossDrill } from '../trainer/CrossDrill.jsx';
 
 const GRADES = [
   { quality: 1, label: 'Forgot', correct: false },
@@ -391,7 +392,7 @@ export default function TrainerPage() {
     return (
       <div className="h-full overflow-y-auto scrollbar-quiet page-scroll" data-testid="trainer-page">
         <div className="max-w-[56rem] mx-auto px-4 sm:px-6">
-          <Practice cases={running.cases} mode={running.mode} onExit={() => setRunning(null)} />
+          {running.mode === 'cross' ? <CrossDrill onExit={() => setRunning(null)} /> : <Practice cases={running.cases} mode={running.mode} onExit={() => setRunning(null)} />}
         </div>
       </div>
     );
@@ -442,6 +443,17 @@ export default function TrainerPage() {
                     : 'Every case in the library is marked learned.'}
             </EmptyState>
           )}
+        </section>
+        <section className="pt-5 border-t border-rule flex flex-col gap-2" data-testid="cross-section">
+          <h2 className="m-0 text-[0.9375rem] font-medium">Cross planning</h2>
+          <p className="m-0 text-[0.8125rem] text-graphite max-w-[60ch]">
+            Plan the cross from a fresh scramble within 15 seconds of inspection, then compare your plan with the shortest cross and X-cross.
+          </p>
+          <div>
+            <button type="button" className="btn btn-primary" data-testid="cross-start" onClick={() => setRunning({ mode: 'cross' })}>
+              Plan a cross
+            </button>
+          </div>
         </section>
         <section className="pt-5 border-t border-rule">
           <h2 className="m-0 mb-2 text-[0.9375rem] font-medium">Progress</h2>

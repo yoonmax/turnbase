@@ -28,6 +28,9 @@ export const DEFAULT_SETTINGS = {
   // Scrambles
   scrambleFontScale: 1,
   showScrambleDiagram: true,
+  // Cross planning
+  showCrossSolutions: true, // After each 3×3 solve, the shortest cross and X-cross.
+  crossColor: 'U', // The face, in scramble orientation, whose cross is solved.
   // Cube controls
   keymapProfile: 'qwerty',
   // Cube appearance
@@ -42,6 +45,7 @@ export const DEFAULT_SETTINGS = {
   // Sound
   turnSound: false,
   timerSound: false,
+  haptics: true, // Vibration on phones for ready, start and stop.
   // Statistics
   extraWindows: [],
   // Accessibility

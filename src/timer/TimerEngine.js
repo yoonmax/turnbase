@@ -9,13 +9,14 @@ import { STATE, createTimerMachine } from './TimerStateMachine.js';
 import { crossedCues, inspectionDisplay } from './InspectionEngine.js';
 import { formatMs } from '../utils/format.js';
 import { inspectionCue, readyCue, stopCue } from '../utils/sound.js';
+import { haptic } from '../utils/haptics.js';
 
 export const useTimerState = create(() => ({ state: STATE.IDLE }));
 
 export const machine = createTimerMachine();
 
 let digitsEl = null;
-let options = { decimals: 2, hideRunningTime: false, inspectionAudio: true, inspectionVisual: true, timerSound: false, trigger: 'space', stopWithAnyKey: true };
+let options = { decimals: 2, hideRunningTime: false, inspectionAudio: true, inspectionVisual: true, timerSound: false, haptics: true, trigger: 'space', stopWithAnyKey: true };
 let onResult = null;
 let frame = 0;
 let cueTimer = 0;
@@ -103,6 +104,11 @@ machine.subscribe((event) => {
   document.documentElement.dataset.timer = event.to;
   useTimerState.setState({ state: event.to });
   if (event.to === STATE.READY && options.timerSound) readyCue();
+  if (options.haptics) {
+    if (event.to === STATE.READY) haptic('ready');
+    else if (event.to === STATE.RUNNING) haptic('start');
+    else if (event.to === STATE.STOPPED && event.from === STATE.RUNNING) haptic('stop');
+  }
   if (event.to === STATE.INSPECTION && event.from !== STATE.HOLDING && event.from !== STATE.READY) {
     lastInspection = 0;
     clearInterval(cueTimer);

@@ -253,17 +253,17 @@ export function CubeRenderer({ controller, colors, style = 'seethrough', bodyCol
             <meshBasicMaterial color={rimColor} side={THREE.DoubleSide} />
           </instancedMesh>
           <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
-            {/* A light clearcoat sheen, kept subtle so the colors stay true. */}
-            <meshPhysicalMaterial side={THREE.DoubleSide} roughness={0.38} metalness={0} clearcoat={0.7} clearcoatRoughness={0.16} envMapIntensity={0.7} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+            {/* Flat, unlit color: no gloss, sheen or highlight at any angle. */}
+            <meshBasicMaterial side={THREE.DoubleSide} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
           </instancedMesh>
         </>
       ) : (
         <>
           <instancedMesh ref={bodyMesh} args={[geometries.body, undefined, bodies.length]} frustumCulled={false} onPointerDown={interactive ? (e) => e.stopPropagation() : undefined}>
-            <meshStandardMaterial color={bodyColor} roughness={0.62} metalness={0.05} />
+            <meshStandardMaterial color={bodyColor} roughness={1} metalness={0} envMapIntensity={0} />
           </instancedMesh>
           <instancedMesh ref={stickerMesh} args={[geometries.sticker, undefined, model.count]} frustumCulled={false} onPointerDown={onStickerDown}>
-            <meshPhysicalMaterial roughness={style === 'stickerless' ? 0.5 : 0.42} metalness={0} clearcoat={style === 'stickerless' ? 0.08 : 0.22} clearcoatRoughness={0.5} envMapIntensity={0.55} />
+            <meshBasicMaterial />
           </instancedMesh>
         </>
       )}

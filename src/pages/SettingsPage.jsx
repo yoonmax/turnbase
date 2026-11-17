@@ -10,8 +10,10 @@ import { useProgress } from '../trainer/TrainingProgress.js';
 import { useKeymaps } from '../cube/keymapStore.js';
 import { PUZZLES } from '../scrambles/PuzzleRegistry.js';
 import { ThemeEditor } from '../settings/ThemeEditor.jsx';
+import { CrossColorPicker } from '../trainer/CrossSolutions.jsx';
+import { isIos, promptInstall, useInstall } from '../app/install.js';
 
-const SECTIONS = ['Appearance', 'Timer', 'Inspection', 'Scrambles', 'Cube controls', 'Cube appearance', 'Animation', 'Sound', 'Statistics', 'Data', 'Accessibility'];
+const SECTIONS = ['Appearance', 'Timer', 'Inspection', 'Scrambles', 'Cube controls', 'Cube appearance', 'Animation', 'Sound', 'Statistics', 'Data', 'App', 'Accessibility'];
 
 function Setting({ label, hint, children, htmlFor }) {
   return (
@@ -59,6 +61,31 @@ function Slider({ id, label, hint, value, min, max, step, format, onChange }) {
         </span>
       </div>
     </Setting>
+  );
+}
+
+function InstallApp() {
+  const { prompt, installed, offlineReady } = useInstall();
+  return (
+    <div className="flex flex-col gap-2 text-[0.8125rem] max-w-[64ch]" data-testid="install-app">
+      <p className="m-0 text-graphite">
+        turnbase can be installed on a computer or phone, where it opens in its own window and works without a connection.
+        {offlineReady ? ' This device already has everything it needs to work offline.' : ''}
+      </p>
+      {installed ? (
+        <p className="m-0" data-testid="install-state">Installed. You are using the app.</p>
+      ) : prompt ? (
+        <div>
+          <button type="button" className="btn btn-primary" data-testid="install-button" onClick={promptInstall}>
+            Install turnbase
+          </button>
+        </div>
+      ) : isIos() ? (
+        <p className="m-0" data-testid="install-state">In Safari, tap Share, then Add to Home Screen.</p>
+      ) : (
+        <p className="m-0" data-testid="install-state">Use your browser's install option, usually in the address bar or its menu (Install app, or Add to Home Screen).</p>
+      )}
+    </div>
   );
 }
 
@@ -177,6 +204,10 @@ export default function SettingsPage() {
             </p>
             <Slider id="scrambleFontScale" label="Scramble text size" value={settings.scrambleFontScale} min={0.7} max={1.6} step={0.05} format={(v) => `${Math.round(v * 100)}%`} onChange={set('scrambleFontScale')} />
             <Toggle id="showScrambleDiagram" label="Show the scramble diagram" value={settings.showScrambleDiagram} onChange={set('showScrambleDiagram')} />
+            <Toggle id="showCrossSolutions" label="Show the shortest cross after each solve" hint="For 3×3, the optimal cross and X-cross for the scramble you just solved, to check your inspection plan." value={settings.showCrossSolutions} onChange={set('showCrossSolutions')} />
+            <Setting label="Cross color" hint="Solutions are worked out for this cross, held on the bottom.">
+              <CrossColorPicker />
+            </Setting>
           </Group>
 
           <Group title="Cube controls">
@@ -223,6 +254,7 @@ export default function SettingsPage() {
           <Group title="Sound">
             <Toggle id="turnSound" label="Turn sounds" hint="A small click for each cube turn." value={settings.turnSound} onChange={set('turnSound')} />
             <Toggle id="timerSound" label="Timer sounds" hint="A tone when the timer is ready and when it stops." value={settings.timerSound} onChange={set('timerSound')} />
+            <Toggle id="haptics" label="Vibration" hint="On phones that support it, a short buzz when the timer is ready, starts and stops." value={settings.haptics} onChange={set('haptics')} />
           </Group>
 
           <Group title="Statistics">
@@ -249,6 +281,10 @@ export default function SettingsPage() {
                 Delete all data
               </button>
             </div>
+          </Group>
+
+          <Group title="App">
+            <InstallApp />
           </Group>
 
           <Group title="Accessibility">

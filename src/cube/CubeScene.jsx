@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Environment, Lightformer, OrbitControls } from '@react-three/drei';
 import gsap from 'gsap';
+import { Eye } from 'lucide-react';
 import { CubeRenderer } from './CubeRenderer.jsx';
 import { resolveScheme } from './CubeThemes.js';
 import { libraryColors } from '../algorithms/libraryColors.js';
@@ -60,8 +61,112 @@ function Rig({ n, controlsRef, apiRef, autoFrame }) {
     // Refit when the canvas or cube size changes.
   }, [distance]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  apiRef.current = { setView: (name) => place(CAMERA_VIEWS[name].dir, true) };
+  // Peek: swing the camera half way round the vertical axis to show the back, and spring
+  // back on release. Only the camera moves, so nothing here can ever count as a turn.
+  const peekState = useRef({ angle: 0, base: null, tween: null, active: false });
+  const peek = (on) => {
+    const p = peekState.current;
+    if (on === p.active) return;
+    p.active = on;
+    const controls = controlsRef.current;
+    p.tween?.kill();
+    if (on && !p.base) {
+      gsap.killTweensOf(camera.position);
+      p.base = camera.position.clone();
+      p.angle = 0;
+      if (controls) controls.enabled = false;
+    }
+    if (!p.base) return;
+    const apply = () => {
+      camera.position.copy(p.base).applyAxisAngle(UP, p.angle);
+      controls?.update();
+      invalidate();
+    };
+    const finish = () => {
+      if (on) return;
+      p.base = null;
+      p.angle = 0;
+      if (controls) controls.enabled = true;
+    };
+    if (prefersReducedMotion()) {
+      p.angle = on ? Math.PI : 0;
+      apply();
+      finish();
+      return;
+    }
+    p.tween = gsap.to(p, {
+      angle: on ? Math.PI : 0,
+      duration: on ? 0.42 : 0.6,
+      ease: on ? 'power2.inOut' : 'back.out(1.5)',
+      onUpdate: apply,
+      onComplete: finish,
+    });
+  };
+
+  useEffect(() => () => peekState.current.tween?.kill(), []);
+
+  apiRef.current = { setView: (name) => place(CAMERA_VIEWS[name].dir, true), peek };
   return null;
+}
+
+const UP = new THREE.Vector3(0, 1, 0);
+
+// Hold Tab to peek at the back. Tab still moves focus whenever a control has it, and
+// Shift+Tab always does, so keyboard navigation keeps working.
+export const PEEK_KEY = 'Tab';
+
+function usePeekKey(apiRef) {
+  useEffect(() => {
+    let held = false;
+    // A control focused by a click does not keep Tab; one reached with the keyboard does.
+    let focusFromPointer = false;
+    const onPointer = () => {
+      focusFromPointer = true;
+    };
+    const canPeek = (event) => {
+      if (event.code !== PEEK_KEY || event.shiftKey || event.altKey || event.metaKey || event.ctrlKey) return false;
+      if (document.body.dataset.modalOpen === 'true') return false;
+      const active = document.activeElement;
+      if (!active || active === document.body) return true;
+      if (active.matches?.('input, select, textarea, [contenteditable="true"]')) return false;
+      return focusFromPointer || !active.matches?.('a, button, summary, [tabindex]');
+    };
+    const down = (event) => {
+      if (held) {
+        if (event.code === PEEK_KEY) event.preventDefault();
+        return;
+      }
+      if (!canPeek(event)) {
+        if (event.code === PEEK_KEY) focusFromPointer = false;
+        return;
+      }
+      event.preventDefault();
+      held = true;
+      apiRef.current?.peek(true);
+    };
+    const up = (event) => {
+      if (!held || event.code !== PEEK_KEY) return;
+      event.preventDefault();
+      held = false;
+      apiRef.current?.peek(false);
+    };
+    const release = () => {
+      if (!held) return;
+      held = false;
+      apiRef.current?.peek(false);
+    };
+    window.addEventListener('pointerdown', onPointer, true);
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', release);
+    return () => {
+      window.removeEventListener('pointerdown', onPointer, true);
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', release);
+      release();
+    };
+  }, [apiRef]);
 }
 
 function Lighting({ dark }) {
@@ -148,7 +253,8 @@ export const CubeScene = forwardRef(function CubeScene({ controller, interactive
   const page = usePageColors(settings.cubeEnvironment, dark);
   const [lostGl, setLostGl] = useState(false);
 
-  useImperativeHandle(ref, () => ({ setView: (name) => api.current?.setView(name) }), []);
+  useImperativeHandle(ref, () => ({ setView: (name) => api.current?.setView(name), peek: (on) => api.current?.peek(on) }), []);
+  usePeekKey(api);
 
   useEffect(() => {
     controller.configure({ turnMs: settings.turnMs, easing: settings.turnEasing, instant: settings.instantMoves });
@@ -210,14 +316,57 @@ export const CubeScene = forwardRef(function CubeScene({ controller, interactive
   );
 });
 
+/** Press and hold to look at the back of the cube; let go and it swings back. */
+export function PeekButton({ sceneRef }) {
+  const [held, setHeld] = useState(false);
+  const set = (on) => {
+    setHeld(on);
+    sceneRef.current?.peek(on);
+  };
+  return (
+    <button
+      type="button"
+      className="btn select-none"
+      aria-pressed={held}
+      title="Hold to see the back (or hold Tab)"
+      data-testid="peek"
+      style={{ touchAction: 'none', WebkitTouchCallout: 'none' }}
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+        set(true);
+      }}
+      onPointerUp={() => set(false)}
+      onPointerCancel={() => set(false)}
+      onLostPointerCapture={() => held && set(false)}
+      onContextMenu={(event) => event.preventDefault()}
+      onKeyDown={(event) => {
+        if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) {
+          event.preventDefault();
+          set(true);
+        }
+      }}
+      onKeyUp={(event) => {
+        if (event.key === ' ' || event.key === 'Enter') set(false);
+      }}
+      onBlur={() => held && set(false)}
+    >
+      <Eye size={14} strokeWidth={1.6} />
+      Peek
+    </button>
+  );
+}
+
 export function CameraViews({ sceneRef }) {
   return (
-    <div className="segmented self-start" role="group" aria-label="Camera angle">
-      {Object.entries(CAMERA_VIEWS).map(([id, view]) => (
-        <button key={id} type="button" data-testid={`view-${id}`} onClick={() => sceneRef.current?.setView(id)}>
-          {view.label}
-        </button>
-      ))}
+    <div className="flex flex-wrap items-center gap-2 self-start">
+      <div className="segmented" role="group" aria-label="Camera angle">
+        {Object.entries(CAMERA_VIEWS).map(([id, view]) => (
+          <button key={id} type="button" data-testid={`view-${id}`} onClick={() => sceneRef.current?.setView(id)}>
+            {view.label}
+          </button>
+        ))}
+      </div>
+      <PeekButton sceneRef={sceneRef} />
     </div>
   );
 }
